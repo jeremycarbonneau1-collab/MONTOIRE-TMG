@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>Montoire · Tour Magno Gardiano</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --olive:    #6b7c3b;
+    --olive-d:  #4a5a28;
+    --olive-p:  #d6ddb8;
+    --rouge:    #b83225;
+    --rouge-l:  #d94535;
+    --cream:    #f7f2ea;
+    --sand:     #ede5cf;
+    --brun:     #3a2a1a;
+    --navy:     #1c3557;
+    --navy-l:   #284872;
+    --text:     #2c2a24;
+    --text-m:   #5a5548;
+    --ok:       #3a5a20;
+    --ok-bg:    #edf4e4;
+    --warn-bg:  #fdf2e0;
+    --warn:     #9a6b12;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ═══ HEADER ═══ */
+  header.top {
+    background: #fff;
+    padding: 22px 18px 18px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    position: relative; overflow: hidden;
+    border-bottom: 1px solid #ece4d2;
+  }
+  header.top::after {
+    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--olive) 0%, var(--rouge-l) 50%, var(--olive) 100%);
+  }
+  .brand-row { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+  .brand-row img { height: 64px; }
+  .brand-title {
+    font-family: 'Cinzel', serif; font-weight: 900; color: var(--navy);
+    font-size: 1.3rem; letter-spacing: .06em;
+  }
+  .brand-sub {
+    font-family: 'Lato', sans-serif; font-size: .68rem; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--text-m); text-align: center;
+    position: relative; z-index: 1;
+  }
+  .sync-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .72rem; color: var(--text-m);
+    position: relative; z-index: 1; margin-top: 2px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #6fa244; flex-shrink: 0; }
+  .dot.bad { background: var(--rouge-l); }
+  .dot.mid { background: #d9a435; }
+
+  /* ═══ TABS ═══ */
+  .tabs-wrap {
+    background: var(--sand);
+    display: flex; overflow-x: auto;
+    border-bottom: 3px solid var(--olive);
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs-wrap::-webkit-scrollbar { height: 0; }
+  .tab-btn {
+    flex: 0 0 auto; min-width: 110px;
+    padding: 14px 16px; background: none; border: none; cursor: pointer;
+    font-family: 'Cinzel', serif; font-size: .72rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-m);
+    position: relative; white-space: nowrap;
+  }
+  .tab-btn.active { color: var(--navy); background: rgba(255,255,255,.6); }
+  .tab-btn.active::after {
+    content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 3px;
+    background: var(--rouge-l);
+  }
+  .tab-count {
+    display: inline-block; margin-left: 5px; font-family: 'Lato', sans-serif;
+    font-size: .68rem; font-weight: 700; background: rgba(28,53,87,.12); color: var(--navy);
+    padding: 1px 6px; border-radius: 9px; vertical-align: middle;
+  }
+
+  main { max-width: 920px; margin: 0 auto; padding: 18px 14px 0; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ═══ BOUTONS COMMUNS ═══ */
+  .btn {
+    font-family: 'Lato', sans-serif; font-weight: 700; font-size: .82rem;
+    border: none; border-radius: 7px; cursor: pointer;
+    padding: 10px 16px; display: inline-flex; align-items: center; gap: 6px;
+    transition: transform .12s, box-shadow .12s, background .15s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: linear-gradient(135deg, var(--olive-d), var(--olive)); color: #fff; box-shadow: 0 3px 10px rgba(74,90,40,.3); }
+  .btn-outline { background: #fff; color: var(--navy); border: 1.5px solid #d8d0be; }
+  .btn-outline:hover { border-color: var(--navy); }
+  .btn-danger { background: #fff; color: var(--rouge); border: 1.5px solid #e8c4bd; }
+  .btn-small { padding: 6px 11px; font-size: .74rem; border-radius: 6px; }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ═══ ONGLET CAVALIERS ═══ */
+  .toolbar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 16px;
+  }
+  .search-box {
+    flex: 1; min-width: 180px; position: relative;
+  }
+  .search-box input {
+    width: 100%; padding: 11px 14px 11px 36px; border: 1.5px solid #d8d0be;
+    border-radius: 7px; font-size: .9rem; background: #fff;
+  }
+  .search-box svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-m); }
+  select.filter-select {
+    padding: 10px 12px; border: 1.5px solid #d8d0be; border-radius: 7px;
+    font-size: .85rem; background: #fff; color: var(--text); font-family: 'Lato', sans-serif;
+  }
+
+  .riders-table-wrap {
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 2px 14px rgba(0,0,0,.06); border: 1px solid #ece4d2;
+  }
+  table.riders { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  table.riders th {
+    background: var(--sand); text-align: left; padding: 10px 12px;
+    font-family: 'Cinzel', serif; font-size: .62rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--olive-d); white-space: nowrap;
+  }
+  table.riders td { padding: 10px 12px; border-bottom: 1px solid #f0ead9; vertical-align: middle; }
+  table.riders tr:last-child td { border-bottom: none; }
+  table.riders tr:hover td { background: #faf7f0; }
+  .rider-name { font-weight: 700; color: var(--text); }
+  .rider-meta { font-size: .76rem; color: var(--text-m); }
+  .badge-statut {
+    display: inline-block; padding: 3px 9px; border-radius: 11px;
+    font-size: .68rem; font-weight: 700; white-space: nowrap;
+  }
+  .badge-attente { background: var(--warn-bg); color: var(--warn); }
+  .badge-valide { background: var(--ok-bg); color: var(--ok); }
+  .badge-manuel { background: #e6e9f0; color: var(--navy); }
+  .creneaux-souhaites { font-size: .76rem; color: var(--text-m); }
+  .empty-state {
+    text-align: center; padding: 50px 20px; color: var(--text-m);
+  }
+  .empty-state svg { color: #cfc6ae; margin-bottom: 10px; }
+  .empty-state p { font-size: .9rem; }
+
+  /* ═══ MODAL AJOUT MANUEL ═══ */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(28,20,12,.5);
+    z-index: 100; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: #fff; border-radius: 12px; padding: 24px 22px; width: 100%; max-width: 440px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  .modal-box h3 {
+    font-family: 'Cinzel', serif; font-size: .95rem; color: var(--navy);
+    margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--sand);
+  }
+  .modal-fld { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .modal-fld label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-m); }
+  .modal-fld input, .modal-fld select {
+    padding: 9px 12px; border: 1.5px solid #d8d0be; border-radius: 6px;
+    font-size: .9rem; font-family: 'Lato', sans-serif; background: #fdfcfa;
+  }
+  .modal-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+
+  /* ═══ ONGLET JOUR ═══ */
+  .day-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .day-title {
+    font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--navy); font-weight: 600;
+  }
+  .day-sub { font-size: .78rem; color: var(--text-m); }
+
+  .slots-grid { display: flex; flex-direction: column; gap: 14px; }
+
+  .slot-card {
+    background: #fff; border-radius: 10px; box-shadow: 0 2px 14px rgba(0,0,0,.06);
+    border: 1px solid #ece4d2; overflow: hidden;
+  }
+  .slot-card-head {
+    background: var(--olive-p);
+    padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    border-bottom: 1px solid #c7d1a3;
+  }
+  .slot-time-inputs { display: flex; align-items: center; gap: 6px; }
+  .slot-time-inputs input[type=time] {
+    background: #fff; border: 1px solid #c7d1a3;
+    color: var(--olive-d); padding: 6px 8px; border-radius: 5px; font-size: .85rem;
+    font-family: 'Lato', sans-serif;
+  }
+  .slot-time-sep { color: var(--olive-d); font-size: .85rem; opacity: .7; }
+  .slot-label-input {
+    flex: 1; min-width: 100px; background: #fff; border: 1px solid #c7d1a3;
+    color: var(--olive-d); padding: 7px 10px; border-radius: 5px; font-size: .85rem; font-weight: 700;
+    font-family: 'Lato', sans-serif;
+  }
+  .slot-label-input::placeholder { color: #8a9470; }
+  .slot-count {
+    background: rgba(255,255,255,.6); color: var(--olive-d); font-size: .72rem; font-weight: 700;
+    padding: 4px 10px; border-radius: 11px; white-space: nowrap;
+  }
+  .slot-del-btn {
+    background: #fff; border: 1px solid #e8c4bd; color: var(--rouge);
+    border-radius: 6px; padding: 6px 9px; cursor: pointer; flex-shrink: 0;
+  }
+  .slot-del-btn:hover { background: var(--rouge); color: #fff; border-color: var(--rouge); }
+
+  .slot-body { padding: 12px 14px 14px; }
+  .rider-row {
+    display: flex; align-items: center; gap: 8px; padding: 8px 0;
+    border-bottom: 1px solid #f3eedf; flex-wrap: wrap;
+  }
+  .rider-row:last-child { border-bottom: none; }
+  .rider-row-name { flex: 1; min-width: 130px; font-weight: 700; font-size: .87rem; color: var(--text); }
+  .rider-row-name .src-tag {
+    font-size: .64rem; font-weight: 700; text-transform: uppercase;
+    color: var(--text-m); margin-left: 5px; background: var(--sand);
+    padding: 1px 6px; border-radius: 8px; vertical-align: middle;
+  }
+  select.galop-select {
+    padding: 7px 9px; border: 1.5px solid #d8d0be; border-radius: 6px;
+    font-size: .8rem; background: #fdfcfa; font-family: 'Lato', sans-serif;
+    color: var(--text);
+  }
+  .rider-row-actions { display: flex; gap: 6px; align-items: center; }
+  .validate-toggle {
+    width: 34px; height: 34px; border-radius: 7px; border: 1.5px solid #d8d0be;
+    background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: #c4bda8; transition: all .15s; flex-shrink: 0;
+  }
+  .validate-toggle.on { background: var(--ok-bg); border-color: #a9cf8a; color: var(--ok); }
+  .btn-mail-pending { background: var(--navy); color: #fff; white-space: nowrap; }
+  .btn-mail-sent { background: var(--ok-bg); color: var(--ok); border: 1.5px solid #a9cf8a; white-space: nowrap; }
+  .remove-rider-btn {
+    width: 34px; height: 34px; border-radius: 7px; border: 1.5px solid #e8c4bd;
+    background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--rouge); flex-shrink: 0;
+  }
+  .remove-rider-btn:hover { background: #fdf0ee; }
+
+  .add-rider-row { padding-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-rider-select {
+    flex: 1; min-width: 160px; padding: 9px 11px; border: 1.5px solid #d8d0be;
+    border-radius: 6px; font-size: .85rem; background: #fff; font-family: 'Lato', sans-serif;
+  }
+  .empty-slot-msg { padding: 14px 0; text-align: center; color: var(--text-m); font-size: .82rem; font-style: italic; }
+
+  .add-slot-btn-wrap { display: flex; justify-content: center; margin-top: 8px; }
+
+  /* ═══ FOOTER SYNC ═══ */
+  .sync-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+    border-top: 1px solid #e3dac3; padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.06); z-index: 50; flex-wrap: wrap;
+  }
+  .sync-bar-info { font-size: .76rem; color: var(--text-m); }
+  .sync-bar-info strong { color: var(--text); }
+
+  .toast {
+    position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--navy); color: #fff; padding: 12px 20px; border-radius: 8px;
+    font-size: .85rem; box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 200;
+    opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none;
+    max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.toast-err { background: var(--rouge); }
+  .toast.toast-ok { background: var(--ok); }
+
+  @media (max-width: 600px) {
+    .brand-title { font-size: 1.05rem; }
+    main { padding: 14px 10px 0; }
+    table.riders { font-size: .78rem; }
+    table.riders th, table.riders td { padding: 8px 8px; }
+    .modal-row2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand-row">
+    <img src="logo_tmg.png" alt="Tour Magno Gardiano" />
+  </div>
+  <p class="brand-sub">Montoire · Gestion des créneaux 2026–27</p>
+  <div class="sync-status" id="sync-status">
+    <span class="dot mid" id="sync-dot"></span>
+    <span id="sync-text">Chargement…</span>
+  </div>
+</header>
+
+<div class="tabs-wrap" id="tabs-wrap"></div>
+
+<main id="main-content"></main>
+
+<div class="sync-bar">
+  <div class="sync-bar-info" id="sync-bar-info">Les mails sont envoyés individuellement depuis chaque créneau.</div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn btn-outline btn-small" id="btn-refresh-sheet">↻ Recharger le Sheet</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══ MODAL : Ajouter cavalier manuellement ═══ -->
+<div class="modal-overlay" id="modal-add-rider">
+  <div class="modal-box">
+    <h3>Ajouter un cavalier manuellement</h3>
+    <div class="modal-row2">
+      <div class="modal-fld">
+        <label>Nom</label>
+        <input type="text" id="m-nom" placeholder="MARTIN" />
+      </div>
+      <div class="modal-fld">
+        <label>Prénom</label>
+        <input type="text" id="m-prenom" placeholder="Sophie" />
+      </div>
+    </div>
+    <div class="modal-fld">
+      <label>Email</label>
+      <input type="email" id="m-email" placeholder="sophie@mail.com" />
+    </div>
+    <div class="modal-fld">
+      <label>Téléphone</label>
+      <input type="tel" id="m-telephone" placeholder="06 12 34 56 78" />
+    </div>
+    <div class="modal-fld">
+      <label>Niveau de galop</label>
+      <select id="m-galop"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-small" id="m-cancel">Annuler</button>
+      <button class="btn btn-primary btn-small" id="m-save">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL : Ajouter un créneau ═══ -->
+<div class="modal-overlay" id="modal-add-slot">
+  <div class="modal-box">
+    <h3>Ajouter un créneau</h3>
+    <div class="modal-fld">
+      <label>Nom du créneau</label>
+      <input type="text" id="s-label" placeholder="Ex. Cours adultes débutants" />
+    </div>
+    <div class="modal-row2">
+      <div class="modal-fld">
+        <label>Heure de début</label>
+        <input type="time" id="s-start" value="18:00" />
+      </div>
+      <div class="modal-fld">
+        <label>Heure de fin</label>
+        <input type="time" id="s-end" value="19:00" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-small" id="s-cancel">Annuler</button>
+      <button class="btn btn-primary btn-small" id="s-save">Créer le créneau</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   CONFIGURATION
+════════════════════════════════════════════════════════════════════ */
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqYKd0-9PUkOjfoDTBPCNBtz5425DHBOZuy5MHb_453Lj2elXT-dIF0HZoTMMH7TPG9zai8_vdIOku/pub?gid=899753151&single=true&output=csv';
+
+// ⚠️ À remplacer par l'URL du webhook n8n une fois créé (voir notes de livraison)
+const SYNC_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+
+const GALOP_OPTIONS = ['Découverte', 'Galop 1', 'Galop 2', 'Galop 3', 'Galop 4', 'Galop 5', 'Galop 6', 'Galop 7'];
+
+const DAYS = [
+  { id: 'mardi',    label: 'Mardi',    sub: 'Cours adultes' },
+  { id: 'mercredi', label: 'Mercredi', sub: 'Matin & après-midi' },
+  { id: 'jeudi',     label: 'Jeudi',    sub: 'Soir' },
+  { id: 'samedi',   label: 'Samedi',   sub: 'Matin & après-midi' },
+];
+
+const DEFAULT_SLOTS = {
+  mardi:    [ { id: 'mar-soir', label: 'Cours adultes', start: '18:30', end: '19:30' } ],
+  mercredi: [
+    { id: 'mer-matin', label: 'Cours du matin', start: '10:00', end: '11:00' },
+    { id: 'mer-am',    label: 'Cours après-midi', start: '14:00', end: '15:00' },
+  ],
+  jeudi:    [ { id: 'jeu-soir', label: 'Cours du soir', start: '18:00', end: '19:00' } ],
+  samedi:   [
+    { id: 'sam-matin', label: 'Cours du matin', start: '10:00', end: '11:00' },
+    { id: 'sam-am',    label: 'Cours après-midi', start: '14:30', end: '15:30' },
+  ],
+};
+
+const STORAGE_KEY = 'montoire_tmg_v1';
+
+/* ════════════════════════════════════════════════════════════════════
+   ÉTAT
+════════════════════════════════════════════════════════════════════ */
+let state = {
+  riders: [],        // liste fusionnée des cavaliers (sheet + manuels)
+  slots: {},          // { jourId: [ {id,label,start,end} ] }
+  placements: {},      // { slotId: [ {riderKey, nom, prenom, email, galop, validated, source} ] }
+  manualRiders: [],    // cavaliers ajoutés manuellement (persistés en local)
+  lastSheetFetch: null,
+};
+
+let activeTab = 'cavaliers';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      state.slots = saved.slots || {};
+      state.placements = saved.placements || {};
+      state.manualRiders = saved.manualRiders || [];
+    }
+  } catch (e) { console.error('Erreur lecture stockage local', e); }
+  // S'assure que chaque jour a au moins ses créneaux par défaut si jamais vide
+  DAYS.forEach(d => {
+    if (!state.slots[d.id] || state.slots[d.id].length === 0) {
+      state.slots[d.id] = JSON.parse(JSON.stringify(DEFAULT_SLOTS[d.id] || []));
+    }
+  });
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      slots: state.slots,
+      placements: state.placements,
+      manualRiders: state.manualRiders,
+    }));
+  } catch (e) { console.error('Erreur sauvegarde locale', e); }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CSV PARSING (simple, gère les guillemets)
+════════════════════════════════════════════════════════════════════ */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], next = text[i+1];
+    if (inQuotes) {
+      if (c === '"' && next === '"') { field += '"'; i++; }
+      else if (c === '"') { inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && next === '\n') i++;
+        row.push(field); field = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else field += c;
+    }
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).filter(r => r.some(c => c.trim() !== '')).map(r => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (r[i] || '').trim());
+    return obj;
+  });
+}
+
+function riderKey(r) {
+  return (r.email && r.email.trim().toLowerCase()) ||
+         ((r.nom_cavalier||r.nom||'') + '_' + (r.prenom_cavalier||r.prenom||'')).toLowerCase().replace(/\s+/g,'');
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   CHARGEMENT DU SHEET
+════════════════════════════════════════════════════════════════════ */
+async function loadSheet(showToast) {
+  setSyncStatus('mid', 'Chargement du Sheet…');
+  try {
+    const res = await fetch(SHEET_CSV_URL + '&_=' + Date.now());
+    if (!res.ok) throw { kind: 'http', status: res.status };
+    const text = await res.text();
+    if (!text || text.trim().length === 0) throw { kind: 'empty' };
+    const rows = parseCSV(text);
+    if (rows.length === 0) throw { kind: 'no-rows', raw: text.slice(0, 200) };
+    const sheetRiders = rows.map(r => ({
+      key: riderKey(r),
+      nom: r.nom_cavalier || '',
+      prenom: r.prenom_cavalier || '',
+      email: r.email || '',
+      telephone: r.telephone || '',
+      creneaux_souhaites: r.creneaux || '',
+      type_adherent: r.type_adherent || '',
+      statut_dossier: r.statut_dossier || 'En attente',
+      source: 'sheet',
+    }));
+    mergeRiders(sheetRiders);
+    state.lastSheetFetch = new Date();
+    setSyncStatus('ok', sheetRiders.length + ' cavalier(s) chargé(s) du Sheet · ' + state.lastSheetFetch.toLocaleTimeString('fr-FR'));
+    if (showToast) showToastMsg('Liste mise à jour depuis le Google Sheet', 'ok');
+  } catch (e) {
+    console.error(e);
+    setSyncStatus('bad', 'Impossible de charger le Sheet (hors-ligne ?)');
+    if (showToast) showToastMsg('Erreur de connexion au Sheet — vérifiez votre réseau', 'err');
+  }
+  renderAll();
+}
+
+function mergeRiders(sheetRiders) {
+  const manual = state.manualRiders.map(r => ({ ...r, source: 'manuel' }));
+  const map = new Map();
+  sheetRiders.forEach(r => map.set(r.key, r));
+  manual.forEach(r => { if (!map.has(r.key)) map.set(r.key, r); });
+  state.riders = Array.from(map.values());
+}
+
+function setSyncStatus(level, text) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-text');
+  dot.className = 'dot ' + (level === 'ok' ? '' : level === 'bad' ? 'bad' : 'mid');
+  txt.textContent = text;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RENDU — TABS
+════════════════════════════════════════════════════════════════════ */
+function renderTabs() {
+  const wrap = document.getElementById('tabs-wrap');
+  const totalRiders = state.riders.length;
+  let html = `<button class="tab-btn ${activeTab==='cavaliers'?'active':''}" data-tab="cavaliers">📋 Cavaliers<span class="tab-count">${totalRiders}</span></button>`;
+  DAYS.forEach(d => {
+    const count = countDayPlacements(d.id);
+    html += `<button class="tab-btn ${activeTab===d.id?'active':''}" data-tab="${d.id}">${d.label}${count ? `<span class="tab-count">${count}</span>` : ''}</button>`;
+  });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => { activeTab = btn.dataset.tab; renderAll(); });
+  });
+}
+
+function countDayPlacements(dayId) {
+  let n = 0;
+  (state.slots[dayId] || []).forEach(slot => {
+    n += (state.placements[slot.id] || []).length;
+  });
+  return n;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RENDU — ONGLET CAVALIERS
+════════════════════════════════════════════════════════════════════ */
+let searchQuery = '';
+let filterStatut = 'tous';
+
+function renderCavaliersTab() {
+  const main = document.getElementById('main-content');
+  const filtered = state.riders.filter(r => {
+    const q = searchQuery.toLowerCase();
+    const matchQ = !q || (r.nom + ' ' + r.prenom).toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q);
+    const matchStatut = filterStatut === 'tous' ||
+      (filterStatut === 'attente' && (r.statut_dossier||'').toLowerCase().includes('attente')) ||
+      (filterStatut === 'valide' && (r.statut_dossier||'').toLowerCase().includes('valid')) ||
+      (filterStatut === 'manuel' && r.source === 'manuel');
+    return matchQ && matchStatut;
+  });
+
+  let rowsHtml = '';
+  if (filtered.length === 0) {
+    rowsHtml = `<tr><td colspan="6"><div class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9 9h.01M15 9h.01M8 15s1.5 2 4 2 4-2 4-2"/></svg>
+      <p>Aucun cavalier ne correspond à votre recherche.</p>
+    </div></td></tr>`;
+  } else {
+    filtered.forEach(r => {
+      const statutClass = r.source === 'manuel' ? 'badge-manuel' :
+        (r.statut_dossier||'').toLowerCase().includes('valid') ? 'badge-valide' : 'badge-attente';
+      const statutLabel = r.source === 'manuel' ? 'Ajout manuel' : (r.statut_dossier || 'En attente');
+      rowsHtml += `<tr>
+        <td><span class="rider-name">${escapeHtml(r.prenom)} ${escapeHtml(r.nom)}</span></td>
+        <td class="creneaux-souhaites">${escapeHtml(r.creneaux_souhaites || '—')}</td>
+        <td class="rider-meta">${escapeHtml(r.email || '—')}</td>
+        <td class="rider-meta">${escapeHtml(r.telephone || '—')}</td>
+        <td><span class="badge-statut ${statutClass}">${escapeHtml(statutLabel)}</span></td>
+        <td><button class="btn btn-outline btn-small" onclick="quickPlace('${r.key}')">+ Placer</button></td>
+      </tr>`;
+    });
+  }
+
+  main.innerHTML = `
+    <div class="toolbar">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="search-input" placeholder="Rechercher un cavalier…" value="${escapeHtml(searchQuery)}" />
+      </div>
+      <select class="filter-select" id="filter-statut">
+        <option value="tous" ${filterStatut==='tous'?'selected':''}>Tous les statuts</option>
+        <option value="attente" ${filterStatut==='attente'?'selected':''}>En attente</option>
+        <option value="valide" ${filterStatut==='valide'?'selected':''}>Créneau validé</option>
+        <option value="manuel" ${filterStatut==='manuel'?'selected':''}>Ajouts manuels</option>
+      </select>
+      <button class="btn btn-navy" id="btn-add-manual">＋ Ajouter un cavalier</button>
+    </div>
+    <div class="riders-table-wrap">
+      <table class="riders">
+        <thead><tr>
+          <th>Cavalier</th><th>Créneaux souhaités</th><th>Email</th><th>Téléphone</th><th>Statut</th><th></th>
+        </tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('search-input').addEventListener('input', e => { searchQuery = e.target.value; renderCavaliersTab(); });
+  document.getElementById('filter-statut').addEventListener('change', e => { filterStatut = e.target.value; renderCavaliersTab(); });
+  document.getElementById('btn-add-manual').addEventListener('click', openAddRiderModal);
+}
+
+function quickPlace(riderKey) {
+  activeTab = DAYS[0].id;
+  renderAll();
+  showToastMsg('Choisissez le jour et le créneau, puis ajoutez ce cavalier depuis la liste déroulante', 'ok');
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RENDU — ONGLET JOUR
+════════════════════════════════════════════════════════════════════ */
+function renderDayTab(dayId) {
+  const day = DAYS.find(d => d.id === dayId);
+  const main = document.getElementById('main-content');
+  const slots = (state.slots[dayId] || []).slice().sort((a,b) => a.start.localeCompare(b.start));
+
+  let slotsHtml = '';
+  slots.forEach(slot => {
+    const placed = state.placements[slot.id] || [];
+    let ridersHtml = '';
+    if (placed.length === 0) {
+      ridersHtml = `<div class="empty-slot-msg">Aucun cavalier sur ce créneau pour l'instant</div>`;
+    } else {
+      placed.forEach((p, idx) => {
+        const galopOptionsHtml = GALOP_OPTIONS.map(g => `<option value="${g}" ${p.galop===g?'selected':''}>${g}</option>`).join('');
+        const mailBtnLabel = p.sending ? 'Envoi…' : p.mailSent ? '✓ Mail envoyé' : '✉️ Envoyer le mail';
+        const mailBtnClass = p.mailSent ? 'btn-mail-sent' : 'btn-mail-pending';
+        ridersHtml += `<div class="rider-row">
+          <span class="rider-row-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} ${p.source==='manuel' ? '<span class="src-tag">manuel</span>' : ''}</span>
+          <select class="galop-select" onchange="setGalop('${slot.id}', ${idx}, this.value)">${galopOptionsHtml}</select>
+          <div class="rider-row-actions">
+            <button class="validate-toggle ${p.validated?'on':''}" title="Marquer comme validé" onclick="toggleValidate('${slot.id}', ${idx})">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+            <button class="btn btn-small ${mailBtnClass}" title="Envoyer le mail de confirmation à ce cavalier" ${p.sending?'disabled':''} onclick="sendMailForRider('${slot.id}', ${idx})">${mailBtnLabel}</button>
+            <button class="remove-rider-btn" title="Retirer du créneau" onclick="removeFromSlot('${slot.id}', ${idx})">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>`;
+      });
+    }
+
+    const availableRiders = state.riders.filter(r => !placed.some(p => p.key === r.key));
+    const optionsHtml = availableRiders.map(r => `<option value="${r.key}">${escapeHtml(r.prenom)} ${escapeHtml(r.nom)}</option>`).join('');
+
+    slotsHtml += `<div class="slot-card">
+      <div class="slot-card-head">
+        <div class="slot-time-inputs">
+          <input type="time" value="${slot.start}" onchange="updateSlotTime('${slot.id}','start',this.value)" />
+          <span class="slot-time-sep">–</span>
+          <input type="time" value="${slot.end}" onchange="updateSlotTime('${slot.id}','end',this.value)" />
+        </div>
+        <input type="text" class="slot-label-input" value="${escapeHtml(slot.label)}" placeholder="Nom du créneau" onchange="updateSlotLabel('${slot.id}', this.value)" />
+        <span class="slot-count">${placed.length} cavalier${placed.length!==1?'s':''}</span>
+        <button class="slot-del-btn" title="Supprimer ce créneau" onclick="deleteSlot('${dayId}','${slot.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+      <div class="slot-body">
+        ${ridersHtml}
+        <div class="add-rider-row">
+          <select class="add-rider-select" id="add-select-${slot.id}">
+            <option value="">+ Ajouter un cavalier de la liste…</option>
+            ${optionsHtml}
+          </select>
+          <button class="btn btn-outline btn-small" onclick="addFromSelect('${slot.id}')">Ajouter</button>
+          <button class="btn btn-outline btn-small" onclick="addFreeText('${slot.id}')">Saisie libre</button>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  main.innerHTML = `
+    <div class="day-header">
+      <div>
+        <div class="day-title">${day.label}</div>
+        <div class="day-sub">${day.sub}</div>
+      </div>
+      <button class="btn btn-navy" id="btn-add-slot">＋ Nouveau créneau</button>
+    </div>
+    <div class="slots-grid">${slotsHtml || '<div class="empty-state"><p>Aucun créneau ce jour. Ajoutez-en un.</p></div>'}</div>
+  `;
+
+  document.getElementById('btn-add-slot').addEventListener('click', () => openAddSlotModal(dayId));
+}
+
+/* ── Actions créneaux / placements ───────────────────────────────── */
+function updateSlotTime(slotId, which, value) {
+  for (const dayId in state.slots) {
+    const slot = state.slots[dayId].find(s => s.id === slotId);
+    if (slot) { slot[which] = value; saveState(); renderDayTab(dayId); return; }
+  }
+}
+function updateSlotLabel(slotId, value) {
+  for (const dayId in state.slots) {
+    const slot = state.slots[dayId].find(s => s.id === slotId);
+    if (slot) { slot.label = value; saveState(); return; }
+  }
+}
+function deleteSlot(dayId, slotId) {
+  if (!confirm('Supprimer ce créneau et tous les cavaliers qui y sont placés ?')) return;
+  state.slots[dayId] = state.slots[dayId].filter(s => s.id !== slotId);
+  delete state.placements[slotId];
+  saveState();
+  renderAll();
+}
+function addFromSelect(slotId) {
+  const sel = document.getElementById('add-select-' + slotId);
+  const key = sel.value;
+  if (!key) return;
+  const rider = state.riders.find(r => r.key === key);
+  if (!rider) return;
+  placeRider(slotId, rider);
+}
+function addFreeText(slotId) {
+  const full = prompt('Nom complet du cavalier (Prénom Nom) :');
+  if (!full || !full.trim()) return;
+  const parts = full.trim().split(/\s+/);
+  const prenom = parts.shift();
+  const nom = parts.join(' ') || '';
+  const rider = { key: 'libre_' + Date.now(), nom, prenom, email: '', telephone: '', source: 'manuel' };
+  placeRider(slotId, rider);
+}
+function placeRider(slotId, rider) {
+  if (!state.placements[slotId]) state.placements[slotId] = [];
+  if (state.placements[slotId].some(p => p.key === rider.key)) {
+    showToastMsg('Ce cavalier est déjà sur ce créneau', 'err');
+    return;
+  }
+  state.placements[slotId].push({
+    key: rider.key, nom: rider.nom, prenom: rider.prenom, email: rider.email || '',
+    galop: 'Découverte', validated: false, source: rider.source || 'sheet',
+  });
+  saveState();
+  renderAll();
+}
+function removeFromSlot(slotId, idx) {
+  state.placements[slotId].splice(idx, 1);
+  saveState();
+  renderAll();
+}
+function setGalop(slotId, idx, value) {
+  state.placements[slotId][idx].galop = value;
+  saveState();
+}
+function toggleValidate(slotId, idx) {
+  state.placements[slotId][idx].validated = !state.placements[slotId][idx].validated;
+  saveState();
+  renderAll();
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   MODALS
+════════════════════════════════════════════════════════════════════ */
+function openAddRiderModal() {
+  document.getElementById('m-nom').value = '';
+  document.getElementById('m-prenom').value = '';
+  document.getElementById('m-email').value = '';
+  document.getElementById('m-telephone').value = '';
+  const galopSel = document.getElementById('m-galop');
+  galopSel.innerHTML = GALOP_OPTIONS.map(g => `<option value="${g}">${g}</option>`).join('');
+  document.getElementById('modal-add-rider').classList.add('active');
+}
+function closeAddRiderModal() { document.getElementById('modal-add-rider').classList.remove('active'); }
+
+function openAddSlotModal(dayId) {
+  document.getElementById('s-label').value = '';
+  document.getElementById('s-start').value = '18:00';
+  document.getElementById('s-end').value = '19:00';
+  document.getElementById('modal-add-slot').dataset.dayId = dayId;
+  document.getElementById('modal-add-slot').classList.add('active');
+}
+function closeAddSlotModal() { document.getElementById('modal-add-slot').classList.remove('active'); }
+
+/* ════════════════════════════════════════════════════════════════════
+   UTILITAIRES
+════════════════════════════════════════════════════════════════════ */
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showToastMsg(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'err' ? ' toast-err' : type === 'ok' ? ' toast-ok' : '');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+/* ════════════════════════════════════════════════════════════════════
+   ENVOI INDIVIDUEL DU MAIL → n8n
+════════════════════════════════════════════════════════════════════ */
+async function sendMailForRider(slotId, idx) {
+  const placement = state.placements[slotId][idx];
+  if (!placement.email) {
+    showToastMsg('Ce cavalier n\'a pas d\'adresse email enregistrée — impossible d\'envoyer le mail', 'err');
+    return;
+  }
+  if (!SYNC_WEBHOOK || SYNC_WEBHOOK.startsWith('VOTRE_URL')) {
+    showToastMsg('Webhook n8n non configuré encore — voir les notes de livraison', 'err');
+    return;
+  }
+
+  const dayEntry = Object.entries(state.slots).find(([dId, slots]) => slots.some(s => s.id === slotId));
+  const dayId = dayEntry ? dayEntry[0] : '';
+  const dayLabel = DAYS.find(d => d.id === dayId)?.label || dayId;
+  const slot = dayEntry ? dayEntry[1].find(s => s.id === slotId) : null;
+
+  const payload = {
+    nom: placement.nom,
+    prenom: placement.prenom,
+    email: placement.email,
+    jour: dayLabel,
+    creneau: slot ? `${slot.label} (${slot.start}-${slot.end})` : '',
+    niveau_galop: placement.galop,
+    statut_dossier: 'Créneau validé',
+  };
+
+  placement.sending = true;
+  renderDayTab(dayId);
+
+  try {
+    await fetch(SYNC_WEBHOOK, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ placements: [payload] }),
+    });
+    placement.mailSent = true;
+    placement.validated = true;
+    showToastMsg('Mail envoyé à ' + placement.prenom + ' ' + placement.nom, 'ok');
+  } catch (e) {
+    console.error(e);
+    showToastMsg('Erreur lors de l\'envoi du mail — réessayez', 'err');
+  } finally {
+    placement.sending = false;
+    saveState();
+    renderAll();
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RENDU GLOBAL
+════════════════════════════════════════════════════════════════════ */
+function renderAll() {
+  renderTabs();
+  if (activeTab === 'cavaliers') renderCavaliersTab();
+  else renderDayTab(activeTab);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════════════ */
+document.getElementById('m-cancel').addEventListener('click', closeAddRiderModal);
+document.getElementById('m-save').addEventListener('click', () => {
+  const nom = document.getElementById('m-nom').value.trim();
+  const prenom = document.getElementById('m-prenom').value.trim();
+  if (!nom || !prenom) { showToastMsg('Nom et prénom sont obligatoires', 'err'); return; }
+  const rider = {
+    key: 'manuel_' + Date.now(),
+    nom, prenom,
+    email: document.getElementById('m-email').value.trim(),
+    telephone: document.getElementById('m-telephone').value.trim(),
+    statut_dossier: 'Ajout manuel',
+    creneaux_souhaites: '',
+    source: 'manuel',
+  };
+  state.manualRiders.push(rider);
+  mergeRiders(state.riders.filter(r => r.source === 'sheet'));
+  saveState();
+  closeAddRiderModal();
+  renderAll();
+  showToastMsg('Cavalier ajouté à la liste', 'ok');
+});
+
+document.getElementById('s-cancel').addEventListener('click', closeAddSlotModal);
+document.getElementById('s-save').addEventListener('click', () => {
+  const dayId = document.getElementById('modal-add-slot').dataset.dayId;
+  const label = document.getElementById('s-label').value.trim() || 'Nouveau créneau';
+  const start = document.getElementById('s-start').value;
+  const end = document.getElementById('s-end').value;
+  if (!state.slots[dayId]) state.slots[dayId] = [];
+  state.slots[dayId].push({ id: dayId + '-' + Date.now(), label, start, end });
+  saveState();
+  closeAddSlotModal();
+  renderAll();
+  showToastMsg('Créneau ajouté', 'ok');
+});
+
+document.getElementById('btn-refresh-sheet').addEventListener('click', () => loadSheet(true));
+
+[document.getElementById('modal-add-rider'), document.getElementById('modal-add-slot')].forEach(modal => {
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
+});
+
+loadState();
+renderAll();
+loadSheet(false);
+</script>
+</body>
+</html>
