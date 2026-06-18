@@ -293,9 +293,48 @@
   @media (max-width: 600px) {
     .brand-title { font-size: 1.05rem; }
     main { padding: 14px 10px 0; }
-    table.riders { font-size: .78rem; }
-    table.riders th, table.riders td { padding: 8px 8px; }
     .modal-row2 { grid-template-columns: 1fr; }
+
+    /* Tableau cavaliers : scroll horizontal propre plutôt que débordement cassé */
+    .riders-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table.riders { font-size: .78rem; min-width: 640px; }
+    table.riders th, table.riders td { padding: 8px 8px; }
+
+    /* Toolbar cavaliers : tout en colonne, boutons pleine largeur */
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar > * { width: 100%; }
+
+    /* En-tête créneau : passe en colonne, plus respirant */
+    .slot-card-head { flex-direction: column; align-items: stretch; gap: 8px; }
+    .slot-time-inputs { justify-content: center; }
+    .slot-label-input { text-align: center; }
+    .slot-count { text-align: center; }
+    .slot-del-btn { align-self: center; }
+
+    /* Ligne cavalier : nom en haut, contrôles en dessous sur toute la largeur */
+    .rider-row { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 0; }
+    .rider-row-name { width: 100%; }
+    select.galop-select { width: 100%; }
+    .rider-row-actions { width: 100%; justify-content: space-between; }
+    .rider-row-actions .btn-mail-pending,
+    .rider-row-actions .btn-mail-sent { flex: 1; }
+
+    /* En-tête de jour : bouton actualiser + nouveau créneau empilés et pleine largeur */
+    .day-header { flex-direction: column; align-items: stretch; }
+    .day-header > div[style] { flex-direction: column; }
+    .day-header button { width: 100%; }
+
+    /* Modals : occupent davantage l'écran sur mobile */
+    .modal-box { padding: 20px 16px; }
+
+    /* Barre du bas : empêche le chevauchement avec le contenu */
+    .sync-bar { flex-direction: column; align-items: stretch; text-align: center; gap: 8px; }
+    .sync-bar > div[style] { justify-content: center; }
+  }
+
+  @media (max-width: 380px) {
+    .tab-btn { min-width: 92px; padding: 12px 10px; font-size: .66rem; }
+    .brand-row img { height: 52px; }
   }
 </style>
 </head>
@@ -389,8 +428,11 @@
 ════════════════════════════════════════════════════════════════════ */
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqYKd0-9PUkOjfoDTBPCNBtz5425DHBOZuy5MHb_453Lj2elXT-dIF0HZoTMMH7TPG9zai8_vdIOku/pub?gid=899753151&single=true&output=csv';
 
-// ⚠️ À remplacer par l'URL du webhook n8n une fois créé (voir notes de livraison)
 const SYNC_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+
+// État partagé (créneaux + placements) entre tous les appareils des monitrices
+const LOAD_STATE_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-load';
+const SAVE_STATE_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-save';
 
 const GALOP_OPTIONS = ['Découverte', 'Galop 1', 'Galop 2', 'Galop 3', 'Galop 4', 'Galop 5', 'Galop 6', 'Galop 7'];
 
@@ -428,7 +470,17 @@ let state = {
 };
 
 let activeTab = 'cavaliers';
+let savingShared = false;
 
+function ensureDefaultSlots() {
+  DAYS.forEach(d => {
+    if (!state.slots[d.id] || state.slots[d.id].length === 0) {
+      state.slots[d.id] = JSON.parse(JSON.stringify(DEFAULT_SLOTS[d.id] || []));
+    }
+  });
+}
+
+// Chargement immédiat depuis le cache local du navigateur (rapide, mais propre à cet appareil)
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -439,14 +491,10 @@ function loadState() {
       state.manualRiders = saved.manualRiders || [];
     }
   } catch (e) { console.error('Erreur lecture stockage local', e); }
-  // S'assure que chaque jour a au moins ses créneaux par défaut si jamais vide
-  DAYS.forEach(d => {
-    if (!state.slots[d.id] || state.slots[d.id].length === 0) {
-      state.slots[d.id] = JSON.parse(JSON.stringify(DEFAULT_SLOTS[d.id] || []));
-    }
-  });
+  ensureDefaultSlots();
 }
 
+// Sauvegarde locale immédiate (cache de secours hors-ligne) + envoi vers l'état partagé
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -455,6 +503,51 @@ function saveState() {
       manualRiders: state.manualRiders,
     }));
   } catch (e) { console.error('Erreur sauvegarde locale', e); }
+  saveSharedState();
+}
+
+// Récupère l'état partagé (créneaux + placements de TOUTES les monitrices) depuis le Sheet via n8n
+async function loadSharedState(showToast) {
+  if (!LOAD_STATE_WEBHOOK || LOAD_STATE_WEBHOOK.startsWith('VOTRE_URL')) return;
+  try {
+    const res = await fetch(LOAD_STATE_WEBHOOK + '?_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && (data.slots || data.placements)) {
+      state.slots = data.slots && Object.keys(data.slots).length ? data.slots : state.slots;
+      state.placements = data.placements || {};
+      ensureDefaultSlots();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          slots: state.slots, placements: state.placements, manualRiders: state.manualRiders,
+        }));
+      } catch (e) { /* ignore */ }
+    }
+    if (showToast) showToastMsg('Créneaux actualisés depuis le tableau partagé', 'ok');
+  } catch (e) {
+    console.error('Erreur chargement état partagé', e);
+    if (showToast) showToastMsg('Impossible de récupérer le tableau partagé — vérifiez le réseau', 'err');
+  }
+  renderAll();
+}
+
+// Envoie l'état actuel vers le Sheet partagé via n8n, pour que les autres appareils le voient
+async function saveSharedState() {
+  if (!SAVE_STATE_WEBHOOK || SAVE_STATE_WEBHOOK.startsWith('VOTRE_URL')) return;
+  savingShared = true;
+  try {
+    await fetch(SAVE_STATE_WEBHOOK, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ slots: state.slots, placements: state.placements }),
+    });
+  } catch (e) {
+    console.error('Erreur sauvegarde état partagé', e);
+    showToastMsg('Modification enregistrée localement, mais pas encore synchronisée (réseau ?)', 'err');
+  } finally {
+    savingShared = false;
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -716,12 +809,16 @@ function renderDayTab(dayId) {
         <div class="day-title">${day.label}</div>
         <div class="day-sub">${day.sub}</div>
       </div>
-      <button class="btn btn-navy" id="btn-add-slot">＋ Nouveau créneau</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-outline" id="btn-refresh-shared">↻ Actualiser les créneaux</button>
+        <button class="btn btn-navy" id="btn-add-slot">＋ Nouveau créneau</button>
+      </div>
     </div>
     <div class="slots-grid">${slotsHtml || '<div class="empty-state"><p>Aucun créneau ce jour. Ajoutez-en un.</p></div>'}</div>
   `;
 
   document.getElementById('btn-add-slot').addEventListener('click', () => openAddSlotModal(dayId));
+  document.getElementById('btn-refresh-shared').addEventListener('click', () => loadSharedState(true));
 }
 
 /* ── Actions créneaux / placements ───────────────────────────────── */
@@ -931,6 +1028,7 @@ document.getElementById('btn-refresh-sheet').addEventListener('click', () => loa
 loadState();
 renderAll();
 loadSheet(false);
+loadSharedState(false);
 </script>
 </body>
 </html>
