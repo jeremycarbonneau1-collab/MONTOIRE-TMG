@@ -251,6 +251,8 @@
     color: #c4bda8; transition: all .15s; flex-shrink: 0;
   }
   .validate-toggle.on { background: var(--ok-bg); border-color: #a9cf8a; color: var(--ok); }
+  .btn-mail-pending { background: var(--navy); color: #fff; white-space: nowrap; }
+  .btn-mail-sent { background: var(--ok-bg); color: var(--ok); border: 1.5px solid #a9cf8a; white-space: nowrap; }
   .remove-rider-btn {
     width: 34px; height: 34px; border-radius: 7px; border: 1.5px solid #e8c4bd;
     background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -291,10 +293,94 @@
   @media (max-width: 600px) {
     .brand-title { font-size: 1.05rem; }
     main { padding: 14px 10px 0; }
-    table.riders { font-size: .78rem; }
-    table.riders th, table.riders td { padding: 8px 8px; }
     .modal-row2 { grid-template-columns: 1fr; }
+
+    /* Tableau cavaliers : scroll horizontal propre plutôt que débordement cassé */
+    .riders-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table.riders { font-size: .78rem; min-width: 640px; }
+    table.riders th, table.riders td { padding: 8px 8px; }
+
+    /* Toolbar cavaliers : tout en colonne, boutons pleine largeur */
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar > * { width: 100%; }
+
+    /* En-tête créneau : passe en colonne, plus respirant */
+    .slot-card-head { flex-direction: column; align-items: stretch; gap: 8px; }
+    .slot-time-inputs { justify-content: center; }
+    .slot-label-input { text-align: center; }
+    .slot-count { text-align: center; }
+    .slot-del-btn { align-self: center; }
+
+    /* Ligne cavalier : nom en haut, contrôles en dessous sur toute la largeur */
+    .rider-row { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 0; }
+    .rider-row-name { width: 100%; }
+    select.galop-select { width: 100%; }
+    .rider-row-actions { width: 100%; justify-content: space-between; }
+    .rider-row-actions .btn-mail-pending,
+    .rider-row-actions .btn-mail-sent { flex: 1; }
+
+    /* En-tête de jour : bouton actualiser + nouveau créneau empilés et pleine largeur */
+    .day-header { flex-direction: column; align-items: stretch; }
+    .day-header > div[style] { flex-direction: column; }
+    .day-header button { width: 100%; }
+
+    /* Modals : occupent davantage l'écran sur mobile */
+    .modal-box { padding: 20px 16px; }
+
+    /* Barre du bas : empêche le chevauchement avec le contenu */
+    .sync-bar { flex-direction: column; align-items: stretch; text-align: center; gap: 8px; }
+    .sync-bar > div[style] { justify-content: center; }
   }
+
+  @media (max-width: 380px) {
+    .tab-btn { min-width: 92px; padding: 12px 10px; font-size: .66rem; }
+    .brand-row img { height: 52px; }
+  }
+
+  /* ═══ TABLEAU DE BORD ═══ */
+  .db-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .db-grid { grid-template-columns: 1fr; } }
+
+  .db-day-card {
+    background: #fff; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 2px 14px rgba(0,0,0,.06); border: 1px solid #ece4d2;
+  }
+  .db-day-head {
+    background: linear-gradient(135deg, var(--olive-d), var(--olive));
+    padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .db-day-head h3 { font-family: 'Cinzel', serif; font-size: .78rem; font-weight: 600; color: #fff; letter-spacing: .1em; }
+  .db-day-head .db-total { background: rgba(255,255,255,.2); color: #fff; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 11px; }
+
+  .db-slot-row { padding: 10px 14px; border-bottom: 1px solid #f0ead9; }
+  .db-slot-row:last-child { border-bottom: none; }
+  .db-slot-name { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .db-slot-time { font-size: .75rem; color: var(--text-m); }
+  .db-progress-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .db-pill {
+    font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 11px; white-space: nowrap;
+  }
+  .db-pill-total { background: var(--sand); color: var(--text); }
+  .db-pill-valid { background: var(--ok-bg); color: var(--ok); }
+  .db-pill-mail  { background: #e6e9f0; color: var(--navy); }
+  .db-pill-wait  { background: var(--warn-bg); color: var(--warn); }
+
+  .db-progress-bar { flex: 1; height: 6px; background: #e8dfc8; border-radius: 3px; min-width: 60px; overflow: hidden; }
+  .db-progress-fill { height: 100%; background: linear-gradient(90deg, var(--olive), var(--ok)); border-radius: 3px; transition: width .3s; }
+
+  .db-empty { color: var(--text-m); font-size: .8rem; font-style: italic; padding: 10px 14px; }
+
+  .db-summary {
+    background: var(--navy); color: #fff; border-radius: 10px;
+    padding: 18px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    text-align: center; margin-bottom: 20px;
+  }
+  @media (max-width: 480px) { .db-summary { grid-template-columns: repeat(2, 1fr); } }
+  .db-sum-val { font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 900; color: #fff; }
+  .db-sum-lbl { font-size: .68rem; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+  .db-sum-item.ok .db-sum-val { color: var(--olive-p); }
+  .db-sum-item.mail .db-sum-val { color: #a8c4e8; }
+  .db-sum-item.wait .db-sum-val { color: #f0c070; }
 </style>
 </head>
 <body>
@@ -315,12 +401,9 @@
 <main id="main-content"></main>
 
 <div class="sync-bar">
-  <div class="sync-bar-info">
-    <strong id="pending-count">0</strong> créneau(x) validé(s) en attente d'envoi
-  </div>
+  <div class="sync-bar-info" id="sync-bar-info">Les mails sont envoyés individuellement depuis chaque créneau.</div>
   <div style="display:flex; gap:8px;">
     <button class="btn btn-outline btn-small" id="btn-refresh-sheet">↻ Recharger le Sheet</button>
-    <button class="btn btn-primary btn-small" id="btn-sync">📤 Envoyer au club</button>
   </div>
 </div>
 
@@ -390,8 +473,11 @@
 ════════════════════════════════════════════════════════════════════ */
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqYKd0-9PUkOjfoDTBPCNBtz5425DHBOZuy5MHb_453Lj2elXT-dIF0HZoTMMH7TPG9zai8_vdIOku/pub?gid=899753151&single=true&output=csv';
 
-// ⚠️ À remplacer par l'URL du webhook n8n une fois créé (voir notes de livraison)
 const SYNC_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+
+// État partagé (créneaux + placements) entre tous les appareils des monitrices
+const LOAD_STATE_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-load';
+const SAVE_STATE_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-save';
 
 const GALOP_OPTIONS = ['Découverte', 'Galop 1', 'Galop 2', 'Galop 3', 'Galop 4', 'Galop 5', 'Galop 6', 'Galop 7'];
 
@@ -429,7 +515,17 @@ let state = {
 };
 
 let activeTab = 'cavaliers';
+let savingShared = false;
 
+function ensureDefaultSlots() {
+  DAYS.forEach(d => {
+    if (!state.slots[d.id] || state.slots[d.id].length === 0) {
+      state.slots[d.id] = JSON.parse(JSON.stringify(DEFAULT_SLOTS[d.id] || []));
+    }
+  });
+}
+
+// Chargement immédiat depuis le cache local du navigateur (rapide, mais propre à cet appareil)
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -440,14 +536,10 @@ function loadState() {
       state.manualRiders = saved.manualRiders || [];
     }
   } catch (e) { console.error('Erreur lecture stockage local', e); }
-  // S'assure que chaque jour a au moins ses créneaux par défaut si jamais vide
-  DAYS.forEach(d => {
-    if (!state.slots[d.id] || state.slots[d.id].length === 0) {
-      state.slots[d.id] = JSON.parse(JSON.stringify(DEFAULT_SLOTS[d.id] || []));
-    }
-  });
+  ensureDefaultSlots();
 }
 
+// Sauvegarde locale immédiate (cache de secours hors-ligne) + envoi vers l'état partagé
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -456,7 +548,51 @@ function saveState() {
       manualRiders: state.manualRiders,
     }));
   } catch (e) { console.error('Erreur sauvegarde locale', e); }
-  renderPendingCount();
+  saveSharedState();
+}
+
+// Récupère l'état partagé (créneaux + placements de TOUTES les monitrices) depuis le Sheet via n8n
+async function loadSharedState(showToast) {
+  if (!LOAD_STATE_WEBHOOK || LOAD_STATE_WEBHOOK.startsWith('VOTRE_URL')) return;
+  try {
+    const res = await fetch(LOAD_STATE_WEBHOOK + '?_=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && (data.slots || data.placements)) {
+      state.slots = data.slots && Object.keys(data.slots).length ? data.slots : state.slots;
+      state.placements = data.placements || {};
+      ensureDefaultSlots();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          slots: state.slots, placements: state.placements, manualRiders: state.manualRiders,
+        }));
+      } catch (e) { /* ignore */ }
+    }
+    if (showToast) showToastMsg('Créneaux actualisés depuis le tableau partagé', 'ok');
+  } catch (e) {
+    console.error('Erreur chargement état partagé', e);
+    if (showToast) showToastMsg('Impossible de récupérer le tableau partagé — vérifiez le réseau', 'err');
+  }
+  renderAll();
+}
+
+// Envoie l'état actuel vers le Sheet partagé via n8n, pour que les autres appareils le voient
+async function saveSharedState() {
+  if (!SAVE_STATE_WEBHOOK || SAVE_STATE_WEBHOOK.startsWith('VOTRE_URL')) return;
+  savingShared = true;
+  try {
+    await fetch(SAVE_STATE_WEBHOOK, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ slots: state.slots, placements: state.placements }),
+    });
+  } catch (e) {
+    console.error('Erreur sauvegarde état partagé', e);
+    showToastMsg('Modification enregistrée localement, mais pas encore synchronisée (réseau ?)', 'err');
+  } finally {
+    savingShared = false;
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -493,8 +629,18 @@ function parseCSV(text) {
 }
 
 function riderKey(r) {
-  return (r.email && r.email.trim().toLowerCase()) ||
-         ((r.nom_cavalier||r.nom||'') + '_' + (r.prenom_cavalier||r.prenom||'')).toLowerCase().replace(/\s+/g,'');
+  // L'email est la clé idéale (toujours unique)
+  if (r.email && r.email.trim()) return r.email.trim().toLowerCase();
+  // Sans email : nom_prenom. Si deux cavaliers ont le même, on garde la même clé
+  // intentionnellement (ils sont dédupliqués depuis le Sheet par email de toute façon)
+  return ((r.nom_cavalier||r.nom||'') + '_' + (r.prenom_cavalier||r.prenom||'')).toLowerCase().replace(/\s+/g,'');
+}
+
+// Génère une clé d'affichage lisible : "Prénom NOM" + email si dispo
+function riderDisplay(r) {
+  const name = ((r.prenom||r.prenom_cavalier||'') + ' ' + (r.nom||r.nom_cavalier||'')).trim();
+  const email = r.email ? ' (' + r.email + ')' : '';
+  return name + email;
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -504,9 +650,11 @@ async function loadSheet(showToast) {
   setSyncStatus('mid', 'Chargement du Sheet…');
   try {
     const res = await fetch(SHEET_CSV_URL + '&_=' + Date.now());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw { kind: 'http', status: res.status };
     const text = await res.text();
+    if (!text || text.trim().length === 0) throw { kind: 'empty' };
     const rows = parseCSV(text);
+    if (rows.length === 0) throw { kind: 'no-rows', raw: text.slice(0, 200) };
     const sheetRiders = rows.map(r => ({
       key: riderKey(r),
       nom: r.nom_cavalier || '',
@@ -551,7 +699,8 @@ function setSyncStatus(level, text) {
 function renderTabs() {
   const wrap = document.getElementById('tabs-wrap');
   const totalRiders = state.riders.length;
-  let html = `<button class="tab-btn ${activeTab==='cavaliers'?'active':''}" data-tab="cavaliers">📋 Cavaliers<span class="tab-count">${totalRiders}</span></button>`;
+  let html = `<button class="tab-btn ${activeTab==='dashboard'?'active':''}" data-tab="dashboard">📊 Tableau de bord</button>`;
+  html += `<button class="tab-btn ${activeTab==='cavaliers'?'active':''}" data-tab="cavaliers">📋 Cavaliers<span class="tab-count">${totalRiders}</span></button>`;
   DAYS.forEach(d => {
     const count = countDayPlacements(d.id);
     html += `<button class="tab-btn ${activeTab===d.id?'active':''}" data-tab="${d.id}">${d.label}${count ? `<span class="tab-count">${count}</span>` : ''}</button>`;
@@ -662,13 +811,16 @@ function renderDayTab(dayId) {
     } else {
       placed.forEach((p, idx) => {
         const galopOptionsHtml = GALOP_OPTIONS.map(g => `<option value="${g}" ${p.galop===g?'selected':''}>${g}</option>`).join('');
+        const mailBtnLabel = p.sending ? 'Envoi…' : p.mailSent ? '✓ Mail envoyé' : '✉️ Envoyer le mail';
+        const mailBtnClass = p.mailSent ? 'btn-mail-sent' : 'btn-mail-pending';
         ridersHtml += `<div class="rider-row">
           <span class="rider-row-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} ${p.source==='manuel' ? '<span class="src-tag">manuel</span>' : ''}</span>
           <select class="galop-select" onchange="setGalop('${slot.id}', ${idx}, this.value)">${galopOptionsHtml}</select>
           <div class="rider-row-actions">
-            <button class="validate-toggle ${p.validated?'on':''}" title="Valider ce placement" onclick="toggleValidate('${slot.id}', ${idx})">
+            <button class="validate-toggle ${p.validated?'on':''}" title="Marquer comme validé" onclick="toggleValidate('${slot.id}', ${idx})">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
+            <button class="btn btn-small ${mailBtnClass}" title="Envoyer le mail de confirmation à ce cavalier" ${p.sending?'disabled':''} onclick="sendMailForRider('${slot.id}', ${idx})">${mailBtnLabel}</button>
             <button class="remove-rider-btn" title="Retirer du créneau" onclick="removeFromSlot('${slot.id}', ${idx})">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
@@ -678,7 +830,7 @@ function renderDayTab(dayId) {
     }
 
     const availableRiders = state.riders.filter(r => !placed.some(p => p.key === r.key));
-    const optionsHtml = availableRiders.map(r => `<option value="${r.key}">${escapeHtml(r.prenom)} ${escapeHtml(r.nom)}</option>`).join('');
+    const optionsHtml = availableRiders.map(r => `<option value="${r.key}">${escapeHtml(riderDisplay(r))}</option>`).join('');
 
     slotsHtml += `<div class="slot-card">
       <div class="slot-card-head">
@@ -713,12 +865,16 @@ function renderDayTab(dayId) {
         <div class="day-title">${day.label}</div>
         <div class="day-sub">${day.sub}</div>
       </div>
-      <button class="btn btn-navy" id="btn-add-slot">＋ Nouveau créneau</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-outline" id="btn-refresh-shared">↻ Actualiser les créneaux</button>
+        <button class="btn btn-navy" id="btn-add-slot">＋ Nouveau créneau</button>
+      </div>
     </div>
     <div class="slots-grid">${slotsHtml || '<div class="empty-state"><p>Aucun créneau ce jour. Ajoutez-en un.</p></div>'}</div>
   `;
 
   document.getElementById('btn-add-slot').addEventListener('click', () => openAddSlotModal(dayId));
+  document.getElementById('btn-refresh-shared').addEventListener('click', () => loadSharedState(true));
 }
 
 /* ── Actions créneaux / placements ───────────────────────────────── */
@@ -764,6 +920,7 @@ function placeRider(slotId, rider) {
     showToastMsg('Ce cavalier est déjà sur ce créneau', 'err');
     return;
   }
+  // Note : un même cavalier peut être sur plusieurs créneaux différents (normal)
   state.placements[slotId].push({
     key: rider.key, nom: rider.nom, prenom: rider.prenom, email: rider.email || '',
     galop: 'Découverte', validated: false, source: rider.source || 'sheet',
@@ -821,67 +978,147 @@ function showToastMsg(msg, type) {
   t.className = 'toast show' + (type === 'err' ? ' toast-err' : type === 'ok' ? ' toast-ok' : '');
   setTimeout(() => t.classList.remove('show'), 3200);
 }
-function renderPendingCount() {
-  let n = 0;
-  Object.values(state.placements).forEach(arr => arr.forEach(p => { if (p.validated) n++; }));
-  document.getElementById('pending-count').textContent = n;
-}
-
 /* ════════════════════════════════════════════════════════════════════
-   SYNCHRONISATION → n8n
+   ENVOI INDIVIDUEL DU MAIL → n8n
 ════════════════════════════════════════════════════════════════════ */
-async function syncToClub() {
-  const toSend = [];
-  Object.entries(state.placements).forEach(([slotId, arr]) => {
-    arr.forEach(p => {
-      if (p.validated) {
-        const dayEntry = Object.entries(state.slots).find(([dId, slots]) => slots.some(s => s.id === slotId));
-        const dayId = dayEntry ? dayEntry[0] : '';
-        const dayLabel = DAYS.find(d => d.id === dayId)?.label || dayId;
-        const slot = dayEntry ? dayEntry[1].find(s => s.id === slotId) : null;
-        toSend.push({
-          nom: p.nom, prenom: p.prenom, email: p.email,
-          jour: dayLabel,
-          creneau: slot ? `${slot.label} (${slot.start}-${slot.end})` : '',
-          niveau_galop: p.galop,
-          statut_dossier: 'Créneau validé',
-        });
-      }
-    });
-  });
-
-  if (toSend.length === 0) {
-    showToastMsg('Aucun créneau validé à envoyer pour le moment', 'err');
+async function sendMailForRider(slotId, idx) {
+  const placement = state.placements[slotId][idx];
+  if (!placement.email) {
+    showToastMsg('Ce cavalier n\'a pas d\'adresse email enregistrée — impossible d\'envoyer le mail', 'err');
     return;
   }
   if (!SYNC_WEBHOOK || SYNC_WEBHOOK.startsWith('VOTRE_URL')) {
     showToastMsg('Webhook n8n non configuré encore — voir les notes de livraison', 'err');
     return;
   }
-  const btn = document.getElementById('btn-sync');
-  btn.disabled = true; btn.textContent = 'Envoi…';
+
+  const dayEntry = Object.entries(state.slots).find(([dId, slots]) => slots.some(s => s.id === slotId));
+  const dayId = dayEntry ? dayEntry[0] : '';
+  const dayLabel = DAYS.find(d => d.id === dayId)?.label || dayId;
+  const slot = dayEntry ? dayEntry[1].find(s => s.id === slotId) : null;
+
+  // Collecter TOUS les créneaux de ce cavalier (il peut en avoir plusieurs)
+  const allSlots = [];
+  Object.entries(state.slots).forEach(([dId, slots]) => {
+    const dLabel = DAYS.find(d => d.id === dId)?.label || dId;
+    slots.forEach(s => {
+      const placed = state.placements[s.id] || [];
+      placed.forEach(p => {
+        if (p.key === placement.key) {
+          allSlots.push(`${dLabel} · ${s.label} (${s.start}-${s.end})`);
+        }
+      });
+    });
+  });
+  const creneauxComplet = allSlots.join(' / ') || (slot ? `${dayLabel} · ${slot.label} (${slot.start}-${slot.end})` : '');
+
+  const payload = {
+    nom: placement.nom,
+    prenom: placement.prenom,
+    email: placement.email,
+    jour: dayLabel,
+    creneau: slot ? `${slot.label} (${slot.start}-${slot.end})` : '',
+    creneau_complet: creneauxComplet,
+    niveau_galop: placement.galop,
+    statut_dossier: 'Créneau validé',
+  };
+
+  placement.sending = true;
+  renderDayTab(dayId);
+
   try {
     await fetch(SYNC_WEBHOOK, {
       method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ placements: toSend }),
+      body: JSON.stringify({ placements: [payload] }),
     });
-    showToastMsg(toSend.length + ' placement(s) envoyé(s) au club', 'ok');
+    placement.mailSent = true;
+    placement.validated = true;
+    showToastMsg('Mail envoyé à ' + placement.prenom + ' ' + placement.nom, 'ok');
   } catch (e) {
     console.error(e);
-    showToastMsg('Erreur lors de l\'envoi — réessayez', 'err');
+    showToastMsg('Erreur lors de l\'envoi du mail — réessayez', 'err');
   } finally {
-    btn.disabled = false; btn.textContent = '📤 Envoyer au club';
+    placement.sending = false;
+    saveState();
+    renderAll();
   }
 }
 
 /* ════════════════════════════════════════════════════════════════════
    RENDU GLOBAL
 ════════════════════════════════════════════════════════════════════ */
+function renderDashboard() {
+  const main = document.getElementById('main-content');
+
+  // Calculer les stats globales et par jour
+  let totalCav = 0, totalValid = 0, totalMail = 0, totalWait = 0;
+
+  const daysHtml = DAYS.map(day => {
+    const slots = (state.slots[day.id] || []).slice().sort((a,b) => a.start.localeCompare(b.start));
+    let dayTotal = 0, dayValid = 0, dayMail = 0;
+
+    const slotsHtml = slots.map(slot => {
+      const placed = state.placements[slot.id] || [];
+      const slotValid = placed.filter(p => p.validated).length;
+      const slotMail  = placed.filter(p => p.mailSent).length;
+      const slotWait  = placed.length - slotValid;
+      dayTotal += placed.length; dayValid += slotValid; dayMail += slotMail;
+      const pct = placed.length ? Math.round((slotValid / placed.length) * 100) : 0;
+      if (placed.length === 0) return `<div class="db-slot-row"><span class="db-empty">${slot.label} (${slot.start}–${slot.end}) — aucun cavalier</span></div>`;
+      return `<div class="db-slot-row">
+        <div class="db-slot-name">${escapeHtml(slot.label)} <span class="db-slot-time">${slot.start}–${slot.end}</span></div>
+        <div class="db-progress-row">
+          <span class="db-pill db-pill-total">👤 ${placed.length}</span>
+          <span class="db-pill db-pill-valid">✅ ${slotValid} validé${slotValid!==1?'s':''}</span>
+          <span class="db-pill db-pill-mail">✉️ ${slotMail} mail${slotMail!==1?'s':''}</span>
+          ${slotWait > 0 ? `<span class="db-pill db-pill-wait">⏳ ${slotWait} en attente</span>` : ''}
+          <div class="db-progress-bar"><div class="db-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    dayTotal && (totalCav += dayTotal);
+    dayValid && (totalValid += dayValid);
+    dayMail  && (totalMail += dayMail);
+    totalWait += (dayTotal - dayValid);
+
+    return `<div class="db-day-card">
+      <div class="db-day-head">
+        <h3>${day.label}</h3>
+        <span class="db-total">${dayTotal} cavalier${dayTotal!==1?'s':''} · ${dayValid} validé${dayValid!==1?'s':''}</span>
+      </div>
+      ${slotsHtml || '<div class="db-empty">Aucun créneau configuré</div>'}
+    </div>`;
+  }).join('');
+
+  main.innerHTML = `
+    <div class="db-summary">
+      <div class="db-sum-item">
+        <div class="db-sum-val">${totalCav}</div>
+        <div class="db-sum-lbl">Cavaliers placés</div>
+      </div>
+      <div class="db-sum-item ok">
+        <div class="db-sum-val">${totalValid}</div>
+        <div class="db-sum-lbl">Créneaux validés</div>
+      </div>
+      <div class="db-sum-item mail">
+        <div class="db-sum-val">${totalMail}</div>
+        <div class="db-sum-lbl">Mails envoyés</div>
+      </div>
+      <div class="db-sum-item wait">
+        <div class="db-sum-val">${totalWait}</div>
+        <div class="db-sum-lbl">En attente</div>
+      </div>
+    </div>
+    <div class="db-grid">${daysHtml}</div>
+  `;
+}
+
 function renderAll() {
   renderTabs();
-  if (activeTab === 'cavaliers') renderCavaliersTab();
+  if (activeTab === 'dashboard') renderDashboard();
+  else if (activeTab === 'cavaliers') renderCavaliersTab();
   else renderDayTab(activeTab);
-  renderPendingCount();
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -924,7 +1161,6 @@ document.getElementById('s-save').addEventListener('click', () => {
 });
 
 document.getElementById('btn-refresh-sheet').addEventListener('click', () => loadSheet(true));
-document.getElementById('btn-sync').addEventListener('click', syncToClub);
 
 [document.getElementById('modal-add-rider'), document.getElementById('modal-add-slot')].forEach(modal => {
   modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
@@ -933,6 +1169,7 @@ document.getElementById('btn-sync').addEventListener('click', syncToClub);
 loadState();
 renderAll();
 loadSheet(false);
+loadSharedState(false);
 </script>
 </body>
 </html>
