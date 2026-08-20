@@ -337,63 +337,24 @@
     .brand-row img { height: 52px; }
   }
 
-  /* ═══ PDF PRINT ═══ */
-  .btn-pdf { background: linear-gradient(135deg, var(--rouge), var(--rouge-l)); color: #fff; gap: 6px; }
-  .btn-pdf:hover { opacity: .9; }
-  @media print {
-    header.top, .tabs-wrap, .sync-bar, .btn-pdf, #tabs-wrap { display: none !important; }
-    body { background: #fff !important; padding: 0 !important; }
-    main { max-width: 100% !important; padding: 0 !important; box-shadow: none !important; }
-    .pdf-page { display: block !important; }
-  }
-  .pdf-page { display: none; }
-  .pdf-header { border-bottom: 2px solid #1c3557; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .pdf-header-title { font-family: 'Cinzel', serif; font-size: 18px; color: #1c3557; font-weight: 900; }
-  .pdf-header-sub { font-size: 11px; color: #5a5548; margin-top: 3px; }
-  .pdf-header-date { font-size: 11px; color: #5a5548; text-align: right; }
-  .pdf-day { margin-bottom: 18px; }
-  .pdf-day-label { display: inline-block; padding: 3px 14px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #fff; margin-bottom: 8px; }
-  .pdf-slot { border: 1px solid #d8d0be; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
-  .pdf-slot-head { background: #f4f0e8; padding: 6px 12px; display: flex; justify-content: space-between; border-bottom: 1px solid #d8d0be; }
-  .pdf-slot-head-name { font-size: 11px; font-weight: 700; color: #1c3557; }
-  .pdf-slot-head-time { font-size: 10px; color: #5a5548; }
-  .pdf-slot-head-count { font-size: 10px; color: #4a5a28; font-weight: 700; }
-  .pdf-rider { display: flex; gap: 8px; padding: 5px 12px; border-bottom: 1px solid #f0ead9; font-size: 11px; }
-  .pdf-rider:last-child { border-bottom: none; }
-  .pdf-rider:nth-child(even) { background: #faf7f2; }
-  .pdf-rider-num { color: #9a9080; min-width: 16px; }
-  .pdf-rider-name { font-weight: 700; color: #2c2a24; }
-  .pdf-empty { padding: 6px 12px; font-size: 10px; color: #9a9080; font-style: italic; }
-  .pdf-footer { border-top: 1px solid #d8d0be; padding-top: 8px; margin-top: 16px; display: flex; justify-content: space-between; font-size: 9px; color: #9a9080; }
+  /* ═══ PAIEMENT ═══ */
+  .payment-row { display: flex; gap: 8px; padding: 6px 0 4px; align-items: center; flex-wrap: wrap; }
+  .pay-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-m); }
+  .pay-toggle { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 20px; cursor: pointer;
+    font-size: .75rem; font-weight: 700; border: 1.5px solid #d8d0be; background: #fff; color: var(--text-m);
+    transition: all .15s; white-space: nowrap; }
+  .pay-toggle.paid { background: var(--ok-bg); border-color: #a9cf8a; color: var(--ok); }
+  .pay-toggle svg { flex-shrink: 0; }
+  .pay-all-done { font-size: .72rem; color: var(--ok); font-weight: 700; }
 
-  /* ═══ TABLEAU DE BORD ═══ */
-  .db-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
-  @media (max-width: 600px) { .db-grid { grid-template-columns: 1fr; } }
-  .db-day-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 14px rgba(0,0,0,.06); border: 1px solid #ece4d2; }
-  .db-day-head { background: linear-gradient(135deg, var(--olive-d), var(--olive)); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
-  .db-day-head h3 { font-family: 'Cinzel', serif; font-size: .78rem; font-weight: 600; color: #fff; letter-spacing: .1em; }
-  .db-day-head .db-total { background: rgba(255,255,255,.2); color: #fff; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 11px; }
-  .db-slot-row { padding: 10px 14px; border-bottom: 1px solid #f0ead9; }
-  .db-slot-row:last-child { border-bottom: none; }
-  .db-slot-name { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-  .db-slot-time { font-size: .75rem; color: var(--text-m); }
-  .db-pill { font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 11px; white-space: nowrap; }
-  .db-pill-total { background: var(--sand); color: var(--text); }
-  .db-pill-valid { background: var(--ok-bg); color: var(--ok); }
-  .db-pill-mail  { background: #e6e9f0; color: var(--navy); }
-  .db-pill-wait  { background: var(--warn-bg); color: var(--warn); }
-  .db-progress-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
-  .db-progress-bar { flex: 1; height: 6px; background: #e8dfc8; border-radius: 3px; min-width: 60px; overflow: hidden; }
-  .db-progress-fill { height: 100%; background: linear-gradient(90deg, var(--olive), var(--ok)); border-radius: 3px; }
-  .db-empty { color: var(--text-m); font-size: .8rem; font-style: italic; padding: 10px 14px; }
-  .db-summary { background: var(--navy); color: #fff; border-radius: 10px; padding: 18px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 20px; }
-  @media (max-width: 480px) { .db-summary { grid-template-columns: repeat(2, 1fr); } }
-  .db-sum-val { font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 900; color: #fff; }
-  .db-sum-lbl { font-size: .68rem; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
-  .db-sum-item.ok .db-sum-val { color: var(--olive-p); }
-  .db-sum-item.mail .db-sum-val { color: #a8c4e8; }
-  .db-sum-item.wait .db-sum-val { color: #f0c070; }
-  .db-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  /* ═══ PAIEMENT LISTE CAVALIERS ═══ */
+  .pay-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+    border-radius: 14px; font-size: .68rem; font-weight: 700; cursor: pointer;
+    border: 1.5px solid #d8d0be; background: #fff; color: var(--text-m);
+    transition: all .15s; white-space: nowrap; margin-right: 4px; }
+  .pay-btn.ok { background: var(--ok-bg); border-color: #a9cf8a; color: var(--ok); }
+  .pay-btn svg { flex-shrink: 0; }
+  td.td-pay { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -486,7 +447,8 @@
 ════════════════════════════════════════════════════════════════════ */
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqYKd0-9PUkOjfoDTBPCNBtz5425DHBOZuy5MHb_453Lj2elXT-dIF0HZoTMMH7TPG9zai8_vdIOku/pub?gid=899753151&single=true&output=csv';
 
-const SYNC_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+const SYNC_WEBHOOK         = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+const PAYMENT_WEBHOOK      = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-paiement';
 
 // État partagé (créneaux + placements) entre tous les appareils des monitrices
 const LOAD_STATE_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-load';
@@ -667,6 +629,8 @@ async function loadSheet(showToast) {
       creneaux_souhaites: r.creneaux || '',
       type_adherent: r.type_adherent || '',
       statut_dossier: r.statut_dossier || 'En attente',
+      cotisation: r.cotisation || '',
+      licence: r.licence || '',
       source: 'sheet',
     }));
     mergeRiders(sheetRiders);
@@ -702,8 +666,7 @@ function setSyncStatus(level, text) {
 function renderTabs() {
   const wrap = document.getElementById('tabs-wrap');
   const totalRiders = state.riders.length;
-  let html = `<button class="tab-btn ${activeTab==='dashboard'?'active':''}" data-tab="dashboard">📊 Tableau de bord</button>`;
-  html += `<button class="tab-btn ${activeTab==='cavaliers'?'active':''}" data-tab="cavaliers">📋 Cavaliers<span class="tab-count">${totalRiders}</span></button>`;
+  let html = `<button class="tab-btn ${activeTab==='cavaliers'?'active':''}" data-tab="cavaliers">📋 Cavaliers<span class="tab-count">${totalRiders}</span></button>`;
   DAYS.forEach(d => {
     const count = countDayPlacements(d.id);
     html += `<button class="tab-btn ${activeTab===d.id?'active':''}" data-tab="${d.id}">${d.label}${count ? `<span class="tab-count">${count}</span>` : ''}</button>`;
@@ -751,12 +714,24 @@ function renderCavaliersTab() {
       const statutClass = r.source === 'manuel' ? 'badge-manuel' :
         (r.statut_dossier||'').toLowerCase().includes('valid') ? 'badge-valide' : 'badge-attente';
       const statutLabel = r.source === 'manuel' ? 'Ajout manuel' : (r.statut_dossier || 'En attente');
+      const cotOk = r.cotisation === 'Oui';
+      const licOk = r.licence === 'Oui';
       rowsHtml += `<tr>
         <td><span class="rider-name">${escapeHtml(r.prenom)} ${escapeHtml(r.nom)}</span></td>
         <td class="creneaux-souhaites">${escapeHtml(r.creneaux_souhaites || '—')}</td>
         <td class="rider-meta">${escapeHtml(r.email || '—')}</td>
         <td class="rider-meta">${escapeHtml(r.telephone || '—')}</td>
         <td><span class="badge-statut ${statutClass}">${escapeHtml(statutLabel)}</span></td>
+        <td class="td-pay">
+          <button class="pay-btn ${cotOk?'ok':''}" onclick="togglePayment('${r.key}', 'cotisation')">
+            <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><polyline points='20 6 9 17 4 12'/></svg>
+            Cot.
+          </button>
+          <button class="pay-btn ${licOk?'ok':''}" onclick="togglePayment('${r.key}', 'licence')">
+            <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><polyline points='20 6 9 17 4 12'/></svg>
+            Lic.
+          </button>
+        </td>
         <td><button class="btn btn-outline btn-small" onclick="quickPlace('${r.key}')">+ Placer</button></td>
       </tr>`;
     });
@@ -779,7 +754,7 @@ function renderCavaliersTab() {
     <div class="riders-table-wrap">
       <table class="riders">
         <thead><tr>
-          <th>Cavalier</th><th>Créneaux souhaités</th><th>Email</th><th>Téléphone</th><th>Statut</th><th></th>
+          <th>Cavalier</th><th>Créneaux souhaités</th><th>Email</th><th>Téléphone</th><th>Statut</th><th>Paiement</th><th></th>
         </tr></thead>
         <tbody>${rowsHtml}</tbody>
       </table>
@@ -789,6 +764,31 @@ function renderCavaliersTab() {
   document.getElementById('search-input').addEventListener('input', e => { searchQuery = e.target.value; renderCavaliersTab(); });
   document.getElementById('filter-statut').addEventListener('change', e => { filterStatut = e.target.value; renderCavaliersTab(); });
   document.getElementById('btn-add-manual').addEventListener('click', openAddRiderModal);
+}
+
+async function togglePayment(riderKey, champ) {
+  const rider = state.riders.find(r => r.key === riderKey);
+  if (!rider) return;
+  rider[champ] = rider[champ] === 'Oui' ? 'Non' : 'Oui';
+  renderCavaliersTab();
+  // Envoyer immédiatement vers le Sheet via webhook dédié
+  if (!rider.email) { showToastMsg('Email manquant — mise à jour Sheet impossible', 'err'); return; }
+  try {
+    await fetch(PAYMENT_WEBHOOK, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        email: rider.email,
+        nom: rider.nom,
+        prenom: rider.prenom,
+        cotisation: rider.cotisation || 'Non',
+        licence: rider.licence || 'Non',
+      }),
+    });
+    showToastMsg('Paiement mis à jour pour ' + rider.prenom + ' ' + rider.nom, 'ok');
+  } catch (e) {
+    console.error('Erreur sync paiement', e);
+    showToastMsg('Erreur de connexion — réessayez', 'err');
+  }
 }
 
 function quickPlace(riderKey) {
@@ -816,17 +816,31 @@ function renderDayTab(dayId) {
         const galopOptionsHtml = GALOP_OPTIONS.map(g => `<option value="${g}" ${p.galop===g?'selected':''}>${g}</option>`).join('');
         const mailBtnLabel = p.sending ? 'Envoi…' : p.mailSent ? '✓ Mail envoyé' : '✉️ Envoyer le mail';
         const mailBtnClass = p.mailSent ? 'btn-mail-sent' : 'btn-mail-pending';
-        ridersHtml += `<div class="rider-row">
-          <span class="rider-row-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} ${p.source==='manuel' ? '<span class="src-tag">manuel</span>' : ''}</span>
-          <select class="galop-select" onchange="setGalop('${slot.id}', ${idx}, this.value)">${galopOptionsHtml}</select>
-          <div class="rider-row-actions">
-            <button class="validate-toggle ${p.validated?'on':''}" title="Marquer comme validé" onclick="toggleValidate('${slot.id}', ${idx})">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        ridersHtml += `<div class="rider-row" style="flex-direction:column;align-items:stretch;gap:0;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:4px;">
+            <span class="rider-row-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} ${p.source==='manuel' ? '<span class="src-tag">manuel</span>' : ''}</span>
+            <select class="galop-select" onchange="setGalop('${slot.id}', ${idx}, this.value)">${galopOptionsHtml}</select>
+            <div class="rider-row-actions">
+              <button class="validate-toggle ${p.validated?'on':''}" title="Marquer comme validé" onclick="toggleValidate('${slot.id}', ${idx})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button class="btn btn-small ${mailBtnClass}" title="Envoyer le mail de confirmation" ${p.sending?'disabled':''} onclick="sendMailForRider('${slot.id}', ${idx})">${mailBtnLabel}</button>
+              <button class="remove-rider-btn" title="Retirer du créneau" onclick="removeFromSlot('${slot.id}', ${idx})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="payment-row">
+            <span class="pay-label">Paiement :</span>
+            <button class="pay-toggle ${p.cotisationPayee?'paid':''}" onclick="togglePaiement('${slot.id}', ${idx}, 'cotisationPayee')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Cotisation
             </button>
-            <button class="btn btn-small ${mailBtnClass}" title="Envoyer le mail de confirmation à ce cavalier" ${p.sending?'disabled':''} onclick="sendMailForRider('${slot.id}', ${idx})">${mailBtnLabel}</button>
-            <button class="remove-rider-btn" title="Retirer du créneau" onclick="removeFromSlot('${slot.id}', ${idx})">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button class="pay-toggle ${p.licencePayee?'paid':''}" onclick="togglePaiement('${slot.id}', ${idx}, 'licencePayee')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Licence FFE
             </button>
+            ${p.cotisationPayee && p.licencePayee ? '<span class="pay-all-done">✓ Tout réglé</span>' : ''}
           </div>
         </div>`;
       });
@@ -939,6 +953,30 @@ function setGalop(slotId, idx, value) {
   state.placements[slotId][idx].galop = value;
   saveState();
 }
+function togglePaiement(slotId, idx, champ) {
+  state.placements[slotId][idx][champ] = !state.placements[slotId][idx][champ];
+  saveState();
+  syncPaiementSheet(slotId, idx);
+  renderAll();
+}
+
+async function syncPaiementSheet(slotId, idx) {
+  const p = state.placements[slotId][idx];
+  if (!p.email) return;
+  if (!SYNC_WEBHOOK || SYNC_WEBHOOK.startsWith('VOTRE_URL')) return;
+  try {
+    await fetch(SYNC_WEBHOOK, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ placements: [{
+        nom: p.nom, prenom: p.prenom, email: p.email,
+        cotisation: p.cotisationPayee ? 'Oui' : 'Non',
+        licence: p.licencePayee ? 'Oui' : 'Non',
+        mode: 'paiement_only',
+      }] }),
+    });
+  } catch (e) { console.error('Erreur sync paiement', e); }
+}
+
 function toggleValidate(slotId, idx) {
   state.placements[slotId][idx].validated = !state.placements[slotId][idx].validated;
   saveState();
@@ -1033,131 +1071,9 @@ async function sendMailForRider(slotId, idx) {
 /* ════════════════════════════════════════════════════════════════════
    RENDU GLOBAL
 ════════════════════════════════════════════════════════════════════ */
-
-const PDF_DAY_COLORS = {
-  mardi:    '#1c3557',
-  mercredi: '#4a5a28',
-  jeudi:    '#6b3a2a',
-  samedi:   '#7a6020',
-};
-
-function generatePDF() {
-  const today = new Date().toLocaleDateString('fr-FR');
-  let html = `
-    <div class="pdf-header">
-      <div>
-        <div class="pdf-header-title">Montoir — Créneaux 2026-27</div>
-        <div class="pdf-header-sub">Tour Magno Gardiano · 750 chemin des Minimes · 30900 Nîmes</div>
-      </div>
-      <div class="pdf-header-date">Édité le ${today}<br>Saison 2026 – 2027</div>
-    </div>
-  `;
-
-  DAYS.forEach(day => {
-    const slots = (state.slots[day.id] || []).slice().sort((a,b) => a.start.localeCompare(b.start));
-    const total = slots.reduce((n, s) => n + (state.placements[s.id] || []).length, 0);
-    const color = PDF_DAY_COLORS[day.id] || '#1c3557';
-
-    html += `<div class="pdf-day">
-      <div class="pdf-day-label" style="background:${color}">${day.label} — ${total} cavalier${total !== 1 ? 's' : ''}</div>`;
-
-    slots.forEach(slot => {
-      const placed = state.placements[slot.id] || [];
-      html += `<div class="pdf-slot">
-        <div class="pdf-slot-head">
-          <span class="pdf-slot-head-name">${escapeHtml(slot.label)}</span>
-          <span class="pdf-slot-head-time">${slot.start} – ${slot.end}</span>
-          <span class="pdf-slot-head-count">${placed.length} cavalier${placed.length !== 1 ? 's' : ''}</span>
-        </div>`;
-      if (placed.length === 0) {
-        html += `<div class="pdf-empty">Aucun cavalier sur ce créneau</div>`;
-      } else {
-        placed.forEach((p, i) => {
-          const bg = i % 2 === 0 ? '' : 'background:#faf7f2;';
-          html += `<div class="pdf-rider" style="${bg}">
-            <span class="pdf-rider-num">${i+1}.</span>
-            <span class="pdf-rider-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</span>
-          </div>`;
-        });
-      }
-      html += `</div>`;
-    });
-    html += `</div>`;
-  });
-
-  html += `<div class="pdf-footer">
-    <span>Tour Magno Gardiano · tourmagnogardiano@gmail.com · 04 66 38 36 30</span>
-    <span>Saison 2026 – 2027</span>
-  </div>`;
-
-  const pdfPage = document.getElementById('pdf-page');
-  pdfPage.innerHTML = html;
-  pdfPage.style.display = 'block';
-  window.print();
-  pdfPage.style.display = 'none';
-}
-function renderDashboard() {
-  const main = document.getElementById('main-content');
-  let totalCav = 0, totalValid = 0, totalMail = 0, totalWait = 0;
-
-  const daysHtml = DAYS.map(day => {
-    const slots = (state.slots[day.id] || []).slice().sort((a,b) => a.start.localeCompare(b.start));
-    let dayTotal = 0, dayValid = 0, dayMail = 0;
-
-    const slotsHtml = slots.map(slot => {
-      const placed = state.placements[slot.id] || [];
-      const slotValid = placed.filter(p => p.validated).length;
-      const slotMail  = placed.filter(p => p.mailSent).length;
-      const slotWait  = placed.length - slotValid;
-      dayTotal += placed.length; dayValid += slotValid; dayMail += slotMail;
-      const pct = placed.length ? Math.round((slotValid / placed.length) * 100) : 0;
-      if (placed.length === 0) return `<div class="db-slot-row"><span class="db-empty">${slot.label} (${slot.start}–${slot.end}) — aucun cavalier</span></div>`;
-      return `<div class="db-slot-row">
-        <div class="db-slot-name">${escapeHtml(slot.label)} <span class="db-slot-time">${slot.start}–${slot.end}</span></div>
-        <div class="db-progress-row">
-          <span class="db-pill db-pill-total">👤 ${placed.length}</span>
-          <span class="db-pill db-pill-valid">✅ ${slotValid}</span>
-          <span class="db-pill db-pill-mail">✉️ ${slotMail}</span>
-          ${slotWait > 0 ? `<span class="db-pill db-pill-wait">⏳ ${slotWait}</span>` : ''}
-          <div class="db-progress-bar"><div class="db-progress-fill" style="width:${pct}%"></div></div>
-        </div>
-      </div>`;
-    }).join('');
-
-    dayTotal && (totalCav += dayTotal);
-    dayValid && (totalValid += dayValid);
-    dayMail  && (totalMail += dayMail);
-    totalWait += (dayTotal - dayValid);
-
-    return `<div class="db-day-card">
-      <div class="db-day-head">
-        <h3>${day.label}</h3>
-        <span class="db-total">${dayTotal} cav. · ${dayValid} validé${dayValid!==1?'s':''}</span>
-      </div>
-      ${slotsHtml || '<div class="db-empty">Aucun créneau configuré</div>'}
-    </div>`;
-  }).join('');
-
-  main.innerHTML = `
-    <div class="db-summary">
-      <div class="db-sum-item"><div class="db-sum-val">${totalCav}</div><div class="db-sum-lbl">Cavaliers placés</div></div>
-      <div class="db-sum-item ok"><div class="db-sum-val">${totalValid}</div><div class="db-sum-lbl">Créneaux validés</div></div>
-      <div class="db-sum-item mail"><div class="db-sum-val">${totalMail}</div><div class="db-sum-lbl">Mails envoyés</div></div>
-      <div class="db-sum-item wait"><div class="db-sum-val">${totalWait}</div><div class="db-sum-lbl">En attente</div></div>
-    </div>
-    <div class="db-actions">
-      <button class="btn btn-outline btn-small" id="btn-refresh-db">↻ Actualiser</button>
-      <button class="btn btn-pdf btn-small" onclick="generatePDF()">🖨️ Exporter en PDF</button>
-    </div>
-    <div class="db-grid">${daysHtml}</div>
-  `;
-  document.getElementById('btn-refresh-db').addEventListener('click', () => loadSharedState(true));
-}
-
 function renderAll() {
   renderTabs();
-  if (activeTab === 'dashboard') renderDashboard();
-  else if (activeTab === 'cavaliers') renderCavaliersTab();
+  if (activeTab === 'cavaliers') renderCavaliersTab();
   else renderDayTab(activeTab);
 }
 
@@ -1211,7 +1127,5 @@ renderAll();
 loadSheet(false);
 loadSharedState(false);
 </script>
-
-<div class="pdf-page" id="pdf-page"></div>
 </body>
 </html>
