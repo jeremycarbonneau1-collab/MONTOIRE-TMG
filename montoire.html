@@ -337,50 +337,63 @@
     .brand-row img { height: 52px; }
   }
 
+  /* ═══ PDF PRINT ═══ */
+  .btn-pdf { background: linear-gradient(135deg, var(--rouge), var(--rouge-l)); color: #fff; gap: 6px; }
+  .btn-pdf:hover { opacity: .9; }
+  @media print {
+    header.top, .tabs-wrap, .sync-bar, .btn-pdf, #tabs-wrap { display: none !important; }
+    body { background: #fff !important; padding: 0 !important; }
+    main { max-width: 100% !important; padding: 0 !important; box-shadow: none !important; }
+    .pdf-page { display: block !important; }
+  }
+  .pdf-page { display: none; }
+  .pdf-header { border-bottom: 2px solid #1c3557; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .pdf-header-title { font-family: 'Cinzel', serif; font-size: 18px; color: #1c3557; font-weight: 900; }
+  .pdf-header-sub { font-size: 11px; color: #5a5548; margin-top: 3px; }
+  .pdf-header-date { font-size: 11px; color: #5a5548; text-align: right; }
+  .pdf-day { margin-bottom: 18px; }
+  .pdf-day-label { display: inline-block; padding: 3px 14px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #fff; margin-bottom: 8px; }
+  .pdf-slot { border: 1px solid #d8d0be; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .pdf-slot-head { background: #f4f0e8; padding: 6px 12px; display: flex; justify-content: space-between; border-bottom: 1px solid #d8d0be; }
+  .pdf-slot-head-name { font-size: 11px; font-weight: 700; color: #1c3557; }
+  .pdf-slot-head-time { font-size: 10px; color: #5a5548; }
+  .pdf-slot-head-count { font-size: 10px; color: #4a5a28; font-weight: 700; }
+  .pdf-rider { display: flex; gap: 8px; padding: 5px 12px; border-bottom: 1px solid #f0ead9; font-size: 11px; }
+  .pdf-rider:last-child { border-bottom: none; }
+  .pdf-rider:nth-child(even) { background: #faf7f2; }
+  .pdf-rider-num { color: #9a9080; min-width: 16px; }
+  .pdf-rider-name { font-weight: 700; color: #2c2a24; }
+  .pdf-empty { padding: 6px 12px; font-size: 10px; color: #9a9080; font-style: italic; }
+  .pdf-footer { border-top: 1px solid #d8d0be; padding-top: 8px; margin-top: 16px; display: flex; justify-content: space-between; font-size: 9px; color: #9a9080; }
+
   /* ═══ TABLEAU DE BORD ═══ */
   .db-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
   @media (max-width: 600px) { .db-grid { grid-template-columns: 1fr; } }
-
-  .db-day-card {
-    background: #fff; border-radius: 10px; overflow: hidden;
-    box-shadow: 0 2px 14px rgba(0,0,0,.06); border: 1px solid #ece4d2;
-  }
-  .db-day-head {
-    background: linear-gradient(135deg, var(--olive-d), var(--olive));
-    padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
-  }
+  .db-day-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 14px rgba(0,0,0,.06); border: 1px solid #ece4d2; }
+  .db-day-head { background: linear-gradient(135deg, var(--olive-d), var(--olive)); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
   .db-day-head h3 { font-family: 'Cinzel', serif; font-size: .78rem; font-weight: 600; color: #fff; letter-spacing: .1em; }
   .db-day-head .db-total { background: rgba(255,255,255,.2); color: #fff; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 11px; }
-
   .db-slot-row { padding: 10px 14px; border-bottom: 1px solid #f0ead9; }
   .db-slot-row:last-child { border-bottom: none; }
   .db-slot-name { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
   .db-slot-time { font-size: .75rem; color: var(--text-m); }
-  .db-progress-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
-  .db-pill {
-    font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 11px; white-space: nowrap;
-  }
+  .db-pill { font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 11px; white-space: nowrap; }
   .db-pill-total { background: var(--sand); color: var(--text); }
   .db-pill-valid { background: var(--ok-bg); color: var(--ok); }
   .db-pill-mail  { background: #e6e9f0; color: var(--navy); }
   .db-pill-wait  { background: var(--warn-bg); color: var(--warn); }
-
+  .db-progress-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
   .db-progress-bar { flex: 1; height: 6px; background: #e8dfc8; border-radius: 3px; min-width: 60px; overflow: hidden; }
-  .db-progress-fill { height: 100%; background: linear-gradient(90deg, var(--olive), var(--ok)); border-radius: 3px; transition: width .3s; }
-
+  .db-progress-fill { height: 100%; background: linear-gradient(90deg, var(--olive), var(--ok)); border-radius: 3px; }
   .db-empty { color: var(--text-m); font-size: .8rem; font-style: italic; padding: 10px 14px; }
-
-  .db-summary {
-    background: var(--navy); color: #fff; border-radius: 10px;
-    padding: 18px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-    text-align: center; margin-bottom: 20px;
-  }
+  .db-summary { background: var(--navy); color: #fff; border-radius: 10px; padding: 18px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center; margin-bottom: 20px; }
   @media (max-width: 480px) { .db-summary { grid-template-columns: repeat(2, 1fr); } }
   .db-sum-val { font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 900; color: #fff; }
   .db-sum-lbl { font-size: .68rem; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
   .db-sum-item.ok .db-sum-val { color: var(--olive-p); }
   .db-sum-item.mail .db-sum-val { color: #a8c4e8; }
   .db-sum-item.wait .db-sum-val { color: #f0c070; }
+  .db-actions { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -629,18 +642,8 @@ function parseCSV(text) {
 }
 
 function riderKey(r) {
-  // L'email est la clé idéale (toujours unique)
-  if (r.email && r.email.trim()) return r.email.trim().toLowerCase();
-  // Sans email : nom_prenom. Si deux cavaliers ont le même, on garde la même clé
-  // intentionnellement (ils sont dédupliqués depuis le Sheet par email de toute façon)
-  return ((r.nom_cavalier||r.nom||'') + '_' + (r.prenom_cavalier||r.prenom||'')).toLowerCase().replace(/\s+/g,'');
-}
-
-// Génère une clé d'affichage lisible : "Prénom NOM" + email si dispo
-function riderDisplay(r) {
-  const name = ((r.prenom||r.prenom_cavalier||'') + ' ' + (r.nom||r.nom_cavalier||'')).trim();
-  const email = r.email ? ' (' + r.email + ')' : '';
-  return name + email;
+  return (r.email && r.email.trim().toLowerCase()) ||
+         ((r.nom_cavalier||r.nom||'') + '_' + (r.prenom_cavalier||r.prenom||'')).toLowerCase().replace(/\s+/g,'');
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -830,7 +833,7 @@ function renderDayTab(dayId) {
     }
 
     const availableRiders = state.riders.filter(r => !placed.some(p => p.key === r.key));
-    const optionsHtml = availableRiders.map(r => `<option value="${r.key}">${escapeHtml(riderDisplay(r))}</option>`).join('');
+    const optionsHtml = availableRiders.map(r => `<option value="${r.key}">${escapeHtml(r.prenom)} ${escapeHtml(r.nom)}</option>`).join('');
 
     slotsHtml += `<div class="slot-card">
       <div class="slot-card-head">
@@ -920,7 +923,6 @@ function placeRider(slotId, rider) {
     showToastMsg('Ce cavalier est déjà sur ce créneau', 'err');
     return;
   }
-  // Note : un même cavalier peut être sur plusieurs créneaux différents (normal)
   state.placements[slotId].push({
     key: rider.key, nom: rider.nom, prenom: rider.prenom, email: rider.email || '',
     galop: 'Découverte', validated: false, source: rider.source || 'sheet',
@@ -997,28 +999,12 @@ async function sendMailForRider(slotId, idx) {
   const dayLabel = DAYS.find(d => d.id === dayId)?.label || dayId;
   const slot = dayEntry ? dayEntry[1].find(s => s.id === slotId) : null;
 
-  // Collecter TOUS les créneaux de ce cavalier (il peut en avoir plusieurs)
-  const allSlots = [];
-  Object.entries(state.slots).forEach(([dId, slots]) => {
-    const dLabel = DAYS.find(d => d.id === dId)?.label || dId;
-    slots.forEach(s => {
-      const placed = state.placements[s.id] || [];
-      placed.forEach(p => {
-        if (p.key === placement.key) {
-          allSlots.push(`${dLabel} · ${s.label} (${s.start}-${s.end})`);
-        }
-      });
-    });
-  });
-  const creneauxComplet = allSlots.join(' / ') || (slot ? `${dayLabel} · ${slot.label} (${slot.start}-${slot.end})` : '');
-
   const payload = {
     nom: placement.nom,
     prenom: placement.prenom,
     email: placement.email,
     jour: dayLabel,
     creneau: slot ? `${slot.label} (${slot.start}-${slot.end})` : '',
-    creneau_complet: creneauxComplet,
     niveau_galop: placement.galop,
     statut_dossier: 'Créneau validé',
   };
@@ -1047,10 +1033,71 @@ async function sendMailForRider(slotId, idx) {
 /* ════════════════════════════════════════════════════════════════════
    RENDU GLOBAL
 ════════════════════════════════════════════════════════════════════ */
+
+const PDF_DAY_COLORS = {
+  mardi:    '#1c3557',
+  mercredi: '#4a5a28',
+  jeudi:    '#6b3a2a',
+  samedi:   '#7a6020',
+};
+
+function generatePDF() {
+  const today = new Date().toLocaleDateString('fr-FR');
+  let html = `
+    <div class="pdf-header">
+      <div>
+        <div class="pdf-header-title">Montoir — Créneaux 2026-27</div>
+        <div class="pdf-header-sub">Tour Magno Gardiano · 750 chemin des Minimes · 30900 Nîmes</div>
+      </div>
+      <div class="pdf-header-date">Édité le ${today}<br>Saison 2026 – 2027</div>
+    </div>
+  `;
+
+  DAYS.forEach(day => {
+    const slots = (state.slots[day.id] || []).slice().sort((a,b) => a.start.localeCompare(b.start));
+    const total = slots.reduce((n, s) => n + (state.placements[s.id] || []).length, 0);
+    const color = PDF_DAY_COLORS[day.id] || '#1c3557';
+
+    html += `<div class="pdf-day">
+      <div class="pdf-day-label" style="background:${color}">${day.label} — ${total} cavalier${total !== 1 ? 's' : ''}</div>`;
+
+    slots.forEach(slot => {
+      const placed = state.placements[slot.id] || [];
+      html += `<div class="pdf-slot">
+        <div class="pdf-slot-head">
+          <span class="pdf-slot-head-name">${escapeHtml(slot.label)}</span>
+          <span class="pdf-slot-head-time">${slot.start} – ${slot.end}</span>
+          <span class="pdf-slot-head-count">${placed.length} cavalier${placed.length !== 1 ? 's' : ''}</span>
+        </div>`;
+      if (placed.length === 0) {
+        html += `<div class="pdf-empty">Aucun cavalier sur ce créneau</div>`;
+      } else {
+        placed.forEach((p, i) => {
+          const bg = i % 2 === 0 ? '' : 'background:#faf7f2;';
+          html += `<div class="pdf-rider" style="${bg}">
+            <span class="pdf-rider-num">${i+1}.</span>
+            <span class="pdf-rider-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)}</span>
+          </div>`;
+        });
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `<div class="pdf-footer">
+    <span>Tour Magno Gardiano · tourmagnogardiano@gmail.com · 04 66 38 36 30</span>
+    <span>Saison 2026 – 2027</span>
+  </div>`;
+
+  const pdfPage = document.getElementById('pdf-page');
+  pdfPage.innerHTML = html;
+  pdfPage.style.display = 'block';
+  window.print();
+  pdfPage.style.display = 'none';
+}
 function renderDashboard() {
   const main = document.getElementById('main-content');
-
-  // Calculer les stats globales et par jour
   let totalCav = 0, totalValid = 0, totalMail = 0, totalWait = 0;
 
   const daysHtml = DAYS.map(day => {
@@ -1069,9 +1116,9 @@ function renderDashboard() {
         <div class="db-slot-name">${escapeHtml(slot.label)} <span class="db-slot-time">${slot.start}–${slot.end}</span></div>
         <div class="db-progress-row">
           <span class="db-pill db-pill-total">👤 ${placed.length}</span>
-          <span class="db-pill db-pill-valid">✅ ${slotValid} validé${slotValid!==1?'s':''}</span>
-          <span class="db-pill db-pill-mail">✉️ ${slotMail} mail${slotMail!==1?'s':''}</span>
-          ${slotWait > 0 ? `<span class="db-pill db-pill-wait">⏳ ${slotWait} en attente</span>` : ''}
+          <span class="db-pill db-pill-valid">✅ ${slotValid}</span>
+          <span class="db-pill db-pill-mail">✉️ ${slotMail}</span>
+          ${slotWait > 0 ? `<span class="db-pill db-pill-wait">⏳ ${slotWait}</span>` : ''}
           <div class="db-progress-bar"><div class="db-progress-fill" style="width:${pct}%"></div></div>
         </div>
       </div>`;
@@ -1085,7 +1132,7 @@ function renderDashboard() {
     return `<div class="db-day-card">
       <div class="db-day-head">
         <h3>${day.label}</h3>
-        <span class="db-total">${dayTotal} cavalier${dayTotal!==1?'s':''} · ${dayValid} validé${dayValid!==1?'s':''}</span>
+        <span class="db-total">${dayTotal} cav. · ${dayValid} validé${dayValid!==1?'s':''}</span>
       </div>
       ${slotsHtml || '<div class="db-empty">Aucun créneau configuré</div>'}
     </div>`;
@@ -1093,25 +1140,18 @@ function renderDashboard() {
 
   main.innerHTML = `
     <div class="db-summary">
-      <div class="db-sum-item">
-        <div class="db-sum-val">${totalCav}</div>
-        <div class="db-sum-lbl">Cavaliers placés</div>
-      </div>
-      <div class="db-sum-item ok">
-        <div class="db-sum-val">${totalValid}</div>
-        <div class="db-sum-lbl">Créneaux validés</div>
-      </div>
-      <div class="db-sum-item mail">
-        <div class="db-sum-val">${totalMail}</div>
-        <div class="db-sum-lbl">Mails envoyés</div>
-      </div>
-      <div class="db-sum-item wait">
-        <div class="db-sum-val">${totalWait}</div>
-        <div class="db-sum-lbl">En attente</div>
-      </div>
+      <div class="db-sum-item"><div class="db-sum-val">${totalCav}</div><div class="db-sum-lbl">Cavaliers placés</div></div>
+      <div class="db-sum-item ok"><div class="db-sum-val">${totalValid}</div><div class="db-sum-lbl">Créneaux validés</div></div>
+      <div class="db-sum-item mail"><div class="db-sum-val">${totalMail}</div><div class="db-sum-lbl">Mails envoyés</div></div>
+      <div class="db-sum-item wait"><div class="db-sum-val">${totalWait}</div><div class="db-sum-lbl">En attente</div></div>
+    </div>
+    <div class="db-actions">
+      <button class="btn btn-outline btn-small" id="btn-refresh-db">↻ Actualiser</button>
+      <button class="btn btn-pdf btn-small" onclick="generatePDF()">🖨️ Exporter en PDF</button>
     </div>
     <div class="db-grid">${daysHtml}</div>
   `;
+  document.getElementById('btn-refresh-db').addEventListener('click', () => loadSharedState(true));
 }
 
 function renderAll() {
@@ -1171,5 +1211,7 @@ renderAll();
 loadSheet(false);
 loadSharedState(false);
 </script>
+
+<div class="pdf-page" id="pdf-page"></div>
 </body>
 </html>
