@@ -336,6 +336,25 @@
     .tab-btn { min-width: 92px; padding: 12px 10px; font-size: .66rem; }
     .brand-row img { height: 52px; }
   }
+
+  /* ═══ PAIEMENT ═══ */
+  .payment-row { display: flex; gap: 8px; padding: 6px 0 4px; align-items: center; flex-wrap: wrap; }
+  .pay-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-m); }
+  .pay-toggle { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 20px; cursor: pointer;
+    font-size: .75rem; font-weight: 700; border: 1.5px solid #d8d0be; background: #fff; color: var(--text-m);
+    transition: all .15s; white-space: nowrap; }
+  .pay-toggle.paid { background: var(--ok-bg); border-color: #a9cf8a; color: var(--ok); }
+  .pay-toggle svg { flex-shrink: 0; }
+  .pay-all-done { font-size: .72rem; color: var(--ok); font-weight: 700; }
+
+  /* ═══ PAIEMENT LISTE CAVALIERS ═══ */
+  .pay-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+    border-radius: 14px; font-size: .68rem; font-weight: 700; cursor: pointer;
+    border: 1.5px solid #d8d0be; background: #fff; color: var(--text-m);
+    transition: all .15s; white-space: nowrap; margin-right: 4px; }
+  .pay-btn.ok { background: var(--ok-bg); border-color: #a9cf8a; color: var(--ok); }
+  .pay-btn svg { flex-shrink: 0; }
+  td.td-pay { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -428,7 +447,9 @@
 ════════════════════════════════════════════════════════════════════ */
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqYKd0-9PUkOjfoDTBPCNBtz5425DHBOZuy5MHb_453Lj2elXT-dIF0HZoTMMH7TPG9zai8_vdIOku/pub?gid=899753151&single=true&output=csv';
 
-const SYNC_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+const SYNC_WEBHOOK            = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+const PAYMENT_WEBHOOK         = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-paiement';
+const PAYMENT_READ_WEBHOOK    = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-paiements-read';
 
 // État partagé (créneaux + placements) entre tous les appareils des monitrices
 const LOAD_STATE_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-load';
@@ -491,6 +512,11 @@ function loadState() {
       state.manualRiders = saved.manualRiders || [];
     }
   } catch (e) { console.error('Erreur lecture stockage local', e); }
+  // Charger les états paiement persistés
+  try {
+    const payRaw = localStorage.getItem('montoire_pay_v1');
+    if (payRaw) state._payCache = JSON.parse(payRaw);
+  } catch (e) { /* ignore */ }
   ensureDefaultSlots();
 }
 
@@ -591,6 +617,35 @@ function riderKey(r) {
 /* ════════════════════════════════════════════════════════════════════
    CHARGEMENT DU SHEET
 ════════════════════════════════════════════════════════════════════ */
+
+// Charge les états paiement depuis Google Sheets en temps réel (pas de délai CSV)
+async function loadPayments() {
+  if (!PAYMENT_READ_WEBHOOK) return;
+  try {
+    const res = await fetch(PAYMENT_READ_WEBHOOK + '?_=' + Date.now());
+    if (!res.ok) return;
+    const data = await res.json();
+    const paiements = data.paiements || {};
+    // Appliquer les états paiement sur les cavaliers en mémoire
+    let updated = 0;
+    state.riders.forEach(r => {
+      const email = (r.email || '').toLowerCase().trim();
+      if (email && paiements[email]) {
+        r.cotisation = paiements[email].cotisation || '';
+        r.licence    = paiements[email].licence    || '';
+        updated++;
+      }
+    });
+    // Persister dans le cache local
+    try {
+      localStorage.setItem('montoire_pay_v1', JSON.stringify(paiements));
+    } catch (e) { /* ignore */ }
+    if (updated > 0) renderCavaliersTab();
+  } catch (e) {
+    console.error('Erreur chargement paiements:', e);
+  }
+}
+
 async function loadSheet(showToast) {
   setSyncStatus('mid', 'Chargement du Sheet…');
   try {
@@ -609,12 +664,15 @@ async function loadSheet(showToast) {
       creneaux_souhaites: r.creneaux || '',
       type_adherent: r.type_adherent || '',
       statut_dossier: r.statut_dossier || 'En attente',
+      cotisation: r.cotisation || '',
+      licence: r.licence || '',
       source: 'sheet',
     }));
     mergeRiders(sheetRiders);
     state.lastSheetFetch = new Date();
     setSyncStatus('ok', sheetRiders.length + ' cavalier(s) chargé(s) du Sheet · ' + state.lastSheetFetch.toLocaleTimeString('fr-FR'));
     if (showToast) showToastMsg('Liste mise à jour depuis le Google Sheet', 'ok');
+    loadPayments(); // Rafraîchir les états paiement en même temps
   } catch (e) {
     console.error(e);
     setSyncStatus('bad', 'Impossible de charger le Sheet (hors-ligne ?)');
@@ -625,10 +683,35 @@ async function loadSheet(showToast) {
 
 function mergeRiders(sheetRiders) {
   const manual = state.manualRiders.map(r => ({ ...r, source: 'manuel' }));
+  // Garder les états paiement locaux (cotisation/licence) si le CSV ne les a pas encore
+  const localPayMap = new Map();
+  (state.riders || []).forEach(r => {
+    if (r.cotisation || r.licence) {
+      localPayMap.set(r.key, { cotisation: r.cotisation, licence: r.licence });
+    }
+  });
   const map = new Map();
-  sheetRiders.forEach(r => map.set(r.key, r));
+  // Aussi charger le cache localStorage si disponible
+  const storedPay = state._payCache || {};
+  sheetRiders.forEach(r => {
+    const localPay = localPayMap.get(r.key) || storedPay[r.key] || {};
+    // Priorité : valeur Sheet si présente, sinon valeur locale/cache
+    map.set(r.key, {
+      ...r,
+      cotisation: r.cotisation || localPay.cotisation || '',
+      licence:    r.licence    || localPay.licence    || '',
+    });
+  });
   manual.forEach(r => { if (!map.has(r.key)) map.set(r.key, r); });
   state.riders = Array.from(map.values());
+  // Persister les états paiement dans localStorage
+  try {
+    const payState = {};
+    state.riders.forEach(r => {
+      if (r.cotisation || r.licence) payState[r.key] = { cotisation: r.cotisation, licence: r.licence };
+    });
+    localStorage.setItem('montoire_pay_v1', JSON.stringify(payState));
+  } catch (e) { /* ignore */ }
 }
 
 function setSyncStatus(level, text) {
@@ -692,12 +775,24 @@ function renderCavaliersTab() {
       const statutClass = r.source === 'manuel' ? 'badge-manuel' :
         (r.statut_dossier||'').toLowerCase().includes('valid') ? 'badge-valide' : 'badge-attente';
       const statutLabel = r.source === 'manuel' ? 'Ajout manuel' : (r.statut_dossier || 'En attente');
+      const cotOk = r.cotisation === 'Oui';
+      const licOk = r.licence === 'Oui';
       rowsHtml += `<tr>
         <td><span class="rider-name">${escapeHtml(r.prenom)} ${escapeHtml(r.nom)}</span></td>
         <td class="creneaux-souhaites">${escapeHtml(r.creneaux_souhaites || '—')}</td>
         <td class="rider-meta">${escapeHtml(r.email || '—')}</td>
         <td class="rider-meta">${escapeHtml(r.telephone || '—')}</td>
         <td><span class="badge-statut ${statutClass}">${escapeHtml(statutLabel)}</span></td>
+        <td class="td-pay">
+          <button class="pay-btn ${cotOk?'ok':''}" onclick="togglePayment('${r.key}', 'cotisation')">
+            <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><polyline points='20 6 9 17 4 12'/></svg>
+            Cot.
+          </button>
+          <button class="pay-btn ${licOk?'ok':''}" onclick="togglePayment('${r.key}', 'licence')">
+            <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><polyline points='20 6 9 17 4 12'/></svg>
+            Lic.
+          </button>
+        </td>
         <td><button class="btn btn-outline btn-small" onclick="quickPlace('${r.key}')">+ Placer</button></td>
       </tr>`;
     });
@@ -720,7 +815,7 @@ function renderCavaliersTab() {
     <div class="riders-table-wrap">
       <table class="riders">
         <thead><tr>
-          <th>Cavalier</th><th>Créneaux souhaités</th><th>Email</th><th>Téléphone</th><th>Statut</th><th></th>
+          <th>Cavalier</th><th>Créneaux souhaités</th><th>Email</th><th>Téléphone</th><th>Statut</th><th>Paiement</th><th></th>
         </tr></thead>
         <tbody>${rowsHtml}</tbody>
       </table>
@@ -730,6 +825,38 @@ function renderCavaliersTab() {
   document.getElementById('search-input').addEventListener('input', e => { searchQuery = e.target.value; renderCavaliersTab(); });
   document.getElementById('filter-statut').addEventListener('change', e => { filterStatut = e.target.value; renderCavaliersTab(); });
   document.getElementById('btn-add-manual').addEventListener('click', openAddRiderModal);
+}
+
+async function togglePayment(riderKey, champ) {
+  const rider = state.riders.find(r => r.key === riderKey);
+  if (!rider) return;
+  rider[champ] = rider[champ] === 'Oui' ? 'Non' : 'Oui';
+  // Persister immédiatement dans le cache local
+  try {
+    const payRaw = localStorage.getItem('montoire_pay_v1');
+    const payState = payRaw ? JSON.parse(payRaw) : {};
+    payState[riderKey] = { cotisation: rider.cotisation || '', licence: rider.licence || '' };
+    localStorage.setItem('montoire_pay_v1', JSON.stringify(payState));
+  } catch (e) { /* ignore */ }
+  renderCavaliersTab();
+  // Envoyer immédiatement vers le Sheet via webhook dédié
+  if (!rider.email) { showToastMsg('Email manquant — mise à jour Sheet impossible', 'err'); return; }
+  try {
+    await fetch(PAYMENT_WEBHOOK, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        email: rider.email,
+        nom: rider.nom,
+        prenom: rider.prenom,
+        cotisation: rider.cotisation || 'Non',
+        licence: rider.licence || 'Non',
+      }),
+    });
+    showToastMsg('Paiement mis à jour pour ' + rider.prenom + ' ' + rider.nom, 'ok');
+  } catch (e) {
+    console.error('Erreur sync paiement', e);
+    showToastMsg('Erreur de connexion — réessayez', 'err');
+  }
 }
 
 function quickPlace(riderKey) {
@@ -757,17 +884,31 @@ function renderDayTab(dayId) {
         const galopOptionsHtml = GALOP_OPTIONS.map(g => `<option value="${g}" ${p.galop===g?'selected':''}>${g}</option>`).join('');
         const mailBtnLabel = p.sending ? 'Envoi…' : p.mailSent ? '✓ Mail envoyé' : '✉️ Envoyer le mail';
         const mailBtnClass = p.mailSent ? 'btn-mail-sent' : 'btn-mail-pending';
-        ridersHtml += `<div class="rider-row">
-          <span class="rider-row-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} ${p.source==='manuel' ? '<span class="src-tag">manuel</span>' : ''}</span>
-          <select class="galop-select" onchange="setGalop('${slot.id}', ${idx}, this.value)">${galopOptionsHtml}</select>
-          <div class="rider-row-actions">
-            <button class="validate-toggle ${p.validated?'on':''}" title="Marquer comme validé" onclick="toggleValidate('${slot.id}', ${idx})">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        ridersHtml += `<div class="rider-row" style="flex-direction:column;align-items:stretch;gap:0;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:4px;">
+            <span class="rider-row-name">${escapeHtml(p.prenom)} ${escapeHtml(p.nom)} ${p.source==='manuel' ? '<span class="src-tag">manuel</span>' : ''}</span>
+            <select class="galop-select" onchange="setGalop('${slot.id}', ${idx}, this.value)">${galopOptionsHtml}</select>
+            <div class="rider-row-actions">
+              <button class="validate-toggle ${p.validated?'on':''}" title="Marquer comme validé" onclick="toggleValidate('${slot.id}', ${idx})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button class="btn btn-small ${mailBtnClass}" title="Envoyer le mail de confirmation" ${p.sending?'disabled':''} onclick="sendMailForRider('${slot.id}', ${idx})">${mailBtnLabel}</button>
+              <button class="remove-rider-btn" title="Retirer du créneau" onclick="removeFromSlot('${slot.id}', ${idx})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="payment-row">
+            <span class="pay-label">Paiement :</span>
+            <button class="pay-toggle ${p.cotisationPayee?'paid':''}" onclick="togglePaiement('${slot.id}', ${idx}, 'cotisationPayee')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Cotisation
             </button>
-            <button class="btn btn-small ${mailBtnClass}" title="Envoyer le mail de confirmation à ce cavalier" ${p.sending?'disabled':''} onclick="sendMailForRider('${slot.id}', ${idx})">${mailBtnLabel}</button>
-            <button class="remove-rider-btn" title="Retirer du créneau" onclick="removeFromSlot('${slot.id}', ${idx})">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button class="pay-toggle ${p.licencePayee?'paid':''}" onclick="togglePaiement('${slot.id}', ${idx}, 'licencePayee')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Licence FFE
             </button>
+            ${p.cotisationPayee && p.licencePayee ? '<span class="pay-all-done">✓ Tout réglé</span>' : ''}
           </div>
         </div>`;
       });
@@ -880,6 +1021,14 @@ function setGalop(slotId, idx, value) {
   state.placements[slotId][idx].galop = value;
   saveState();
 }
+function togglePaiement(slotId, idx, champ) {
+  state.placements[slotId][idx][champ] = !state.placements[slotId][idx][champ];
+  saveState();
+  renderAll();
+}
+
+
+
 function toggleValidate(slotId, idx) {
   state.placements[slotId][idx].validated = !state.placements[slotId][idx].validated;
   saveState();
@@ -1029,6 +1178,7 @@ loadState();
 renderAll();
 loadSheet(false);
 loadSharedState(false);
+loadPayments();
 </script>
 </body>
 </html>
