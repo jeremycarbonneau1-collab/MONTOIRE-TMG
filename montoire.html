@@ -447,8 +447,9 @@
 ════════════════════════════════════════════════════════════════════ */
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSqYKd0-9PUkOjfoDTBPCNBtz5425DHBOZuy5MHb_453Lj2elXT-dIF0HZoTMMH7TPG9zai8_vdIOku/pub?gid=899753151&single=true&output=csv';
 
-const SYNC_WEBHOOK         = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
-const PAYMENT_WEBHOOK      = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-paiement';
+const SYNC_WEBHOOK            = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-validation';
+const PAYMENT_WEBHOOK         = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-paiement';
+const PAYMENT_READ_WEBHOOK    = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-paiements-read';
 
 // État partagé (créneaux + placements) entre tous les appareils des monitrices
 const LOAD_STATE_WEBHOOK = 'https://n8n.srv1745823.hstgr.cloud/webhook/montoire-load';
@@ -511,6 +512,11 @@ function loadState() {
       state.manualRiders = saved.manualRiders || [];
     }
   } catch (e) { console.error('Erreur lecture stockage local', e); }
+  // Charger les états paiement persistés
+  try {
+    const payRaw = localStorage.getItem('montoire_pay_v1');
+    if (payRaw) state._payCache = JSON.parse(payRaw);
+  } catch (e) { /* ignore */ }
   ensureDefaultSlots();
 }
 
@@ -611,6 +617,35 @@ function riderKey(r) {
 /* ════════════════════════════════════════════════════════════════════
    CHARGEMENT DU SHEET
 ════════════════════════════════════════════════════════════════════ */
+
+// Charge les états paiement depuis Google Sheets en temps réel (pas de délai CSV)
+async function loadPayments() {
+  if (!PAYMENT_READ_WEBHOOK) return;
+  try {
+    const res = await fetch(PAYMENT_READ_WEBHOOK + '?_=' + Date.now());
+    if (!res.ok) return;
+    const data = await res.json();
+    const paiements = data.paiements || {};
+    // Appliquer les états paiement sur les cavaliers en mémoire
+    let updated = 0;
+    state.riders.forEach(r => {
+      const email = (r.email || '').toLowerCase().trim();
+      if (email && paiements[email]) {
+        r.cotisation = paiements[email].cotisation || '';
+        r.licence    = paiements[email].licence    || '';
+        updated++;
+      }
+    });
+    // Persister dans le cache local
+    try {
+      localStorage.setItem('montoire_pay_v1', JSON.stringify(paiements));
+    } catch (e) { /* ignore */ }
+    if (updated > 0) renderCavaliersTab();
+  } catch (e) {
+    console.error('Erreur chargement paiements:', e);
+  }
+}
+
 async function loadSheet(showToast) {
   setSyncStatus('mid', 'Chargement du Sheet…');
   try {
@@ -637,6 +672,7 @@ async function loadSheet(showToast) {
     state.lastSheetFetch = new Date();
     setSyncStatus('ok', sheetRiders.length + ' cavalier(s) chargé(s) du Sheet · ' + state.lastSheetFetch.toLocaleTimeString('fr-FR'));
     if (showToast) showToastMsg('Liste mise à jour depuis le Google Sheet', 'ok');
+    loadPayments(); // Rafraîchir les états paiement en même temps
   } catch (e) {
     console.error(e);
     setSyncStatus('bad', 'Impossible de charger le Sheet (hors-ligne ?)');
@@ -647,10 +683,35 @@ async function loadSheet(showToast) {
 
 function mergeRiders(sheetRiders) {
   const manual = state.manualRiders.map(r => ({ ...r, source: 'manuel' }));
+  // Garder les états paiement locaux (cotisation/licence) si le CSV ne les a pas encore
+  const localPayMap = new Map();
+  (state.riders || []).forEach(r => {
+    if (r.cotisation || r.licence) {
+      localPayMap.set(r.key, { cotisation: r.cotisation, licence: r.licence });
+    }
+  });
   const map = new Map();
-  sheetRiders.forEach(r => map.set(r.key, r));
+  // Aussi charger le cache localStorage si disponible
+  const storedPay = state._payCache || {};
+  sheetRiders.forEach(r => {
+    const localPay = localPayMap.get(r.key) || storedPay[r.key] || {};
+    // Priorité : valeur Sheet si présente, sinon valeur locale/cache
+    map.set(r.key, {
+      ...r,
+      cotisation: r.cotisation || localPay.cotisation || '',
+      licence:    r.licence    || localPay.licence    || '',
+    });
+  });
   manual.forEach(r => { if (!map.has(r.key)) map.set(r.key, r); });
   state.riders = Array.from(map.values());
+  // Persister les états paiement dans localStorage
+  try {
+    const payState = {};
+    state.riders.forEach(r => {
+      if (r.cotisation || r.licence) payState[r.key] = { cotisation: r.cotisation, licence: r.licence };
+    });
+    localStorage.setItem('montoire_pay_v1', JSON.stringify(payState));
+  } catch (e) { /* ignore */ }
 }
 
 function setSyncStatus(level, text) {
@@ -770,6 +831,13 @@ async function togglePayment(riderKey, champ) {
   const rider = state.riders.find(r => r.key === riderKey);
   if (!rider) return;
   rider[champ] = rider[champ] === 'Oui' ? 'Non' : 'Oui';
+  // Persister immédiatement dans le cache local
+  try {
+    const payRaw = localStorage.getItem('montoire_pay_v1');
+    const payState = payRaw ? JSON.parse(payRaw) : {};
+    payState[riderKey] = { cotisation: rider.cotisation || '', licence: rider.licence || '' };
+    localStorage.setItem('montoire_pay_v1', JSON.stringify(payState));
+  } catch (e) { /* ignore */ }
   renderCavaliersTab();
   // Envoyer immédiatement vers le Sheet via webhook dédié
   if (!rider.email) { showToastMsg('Email manquant — mise à jour Sheet impossible', 'err'); return; }
@@ -1126,6 +1194,7 @@ loadState();
 renderAll();
 loadSheet(false);
 loadSharedState(false);
+loadPayments();
 </script>
 </body>
 </html>
